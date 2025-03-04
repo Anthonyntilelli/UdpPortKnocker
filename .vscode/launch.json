@@ -1,0 +1,21 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Debug UdpPortKnocker",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/bin/udpknocker.out",
+            "args": ["validate", "config/different_order.conf"],   // Arguments to pass on startup
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}",
+            "environment": [],
+            "externalConsole": false,
+            // Make sure to match your actual debugger:
+            "MIMode": "gdb",
+            "miDebuggerPath": "/usr/bin/gdb",
+            // Ensure this matches the "label" in tasks.json
+            "preLaunchTask": "Build UdpPortKnocker"
+        }
+    ]
+}

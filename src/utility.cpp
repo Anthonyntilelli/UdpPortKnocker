@@ -30,4 +30,19 @@ namespace utility {
         if (!str.empty()) parsedVec.push_back(str); // push back last element
         return parsedVec;
     }
+    //splits a "/" into two parts, the second part will be "" if no / is present
+    std::pair<std::string, std::string> parseSlash(const std::string &input){
+      std::string first{};
+      std::string second{};
+      bool foundSlash{false};
+      for (auto c : input){
+        if(c == '/') { 
+            foundSlash = true;
+            continue;
+        }
+        if (!foundSlash) first += c;
+        else second += c;
+      }
+      return std::make_pair(first,second);
+    }
 }

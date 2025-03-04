@@ -45,6 +45,23 @@
         "stdexcept": "cpp",
         "streambuf": "cpp",
         "typeinfo": "cpp",
-        "sstream": "cpp"
-    }
+        "sstream": "cpp",
+        "unordered_set": "cpp",
+        "cstring": "cpp",
+        "map": "cpp"
+    },
+    "cSpell.words": [
+        "cppcheck",
+        "fdiagnostics",
+        "firewalld",
+        "fsanitize",
+        "GLIBCXX",
+        "hmac",
+        "udpknocker",
+        "valgrind",
+        "Wconversion",
+        "Wextra",
+        "Wpedantic",
+        "Wshadow"
+    ]
 }
