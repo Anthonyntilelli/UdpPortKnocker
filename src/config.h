@@ -7,7 +7,7 @@
 #include <stdexcept>
 #include <iostream>
 #include <fstream>
-#include "utility.cpp"
+#include "utility.h"
 
 enum class firewallType {invalid=0, mock, ufw, firewalld, iptables };
 
@@ -37,6 +37,7 @@ private:
    //Sets avd validates firewall type
    firewallType setFirewallType(const std::string &firewall);
    void populateSequencesKnockPorts(const std::string &key, const std::string &value);
+   void populateSequencesUnlockPorts(const std::string &key, const std::string &port);
 public:
     // Can thow invalid_argument if there are errors in the config file.
     Config(const std::string &filePath);
@@ -46,6 +47,6 @@ public:
     bool banEnabled() const;
     int getBanTimer() const;
     std::unordered_map<std::string, sequence> getSequences() const;
-    ~Config();
+    ~Config() = default;
 };
 #endif

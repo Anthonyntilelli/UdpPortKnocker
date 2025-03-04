@@ -10,11 +10,29 @@ firewallType Config::setFirewallType(const std::string &firewall)
 }
 void Config::populateSequencesKnockPorts(const std::string &key, const std::string &value)
 {
+    auto knockerPorts = utility::parseCSV(value);
     if (sequences.find(key) != sequences.end()) {
-        std::cout << key << " exists with value " << "\n";
+        sequences.at(key).knockPorts.clear(); // remove old info
     } else {
-        std::cout << key << " does not exist\n";
+        sequences[key] = sequence{};
     }
+    for(auto &port : knockerPorts){
+        int numberPort{-1};
+        try{
+            numberPort = std::stoi(port);
+        } catch (std::invalid_argument const& ex){
+            throw std::invalid_argument{"port " + port + " is not a valid number"}; 
+        } catch (std::out_of_range const& ex) {
+            throw std::invalid_argument{"port " + port +" is too big"};
+        }
+        sequences.at(key).addPortToSequence(numberPort);
+    }
+}
+void Config::populateSequencesUnlockPorts(const std::string &key, const std::string &port)
+{
+    std::cout << key << std::endl;
+    std::cout << port << std::endl;
+
 }
 Config::Config(const std::string &filePath) : secret_key{}, log_file{""}, firewall{firewallType::invalid}, ban{false}, ban_timer{-1}, sequences{}
 {
@@ -30,10 +48,10 @@ Config::Config(const std::string &filePath) : secret_key{}, log_file{""}, firewa
         if (pos == std::string::npos) continue;
         std::string key = line.substr(0, pos);
         std::string value = line.substr(pos + 1);
-        Utility::ltrim(key);
-        Utility::rtrim(key);
-        Utility::ltrim(value);
-        Utility::rtrim(value);
+        utility::ltrim(key);
+        utility::rtrim(key);
+        utility::ltrim(value);
+        utility::rtrim(value);
         
         //parse the different keys
         if (key == "secret_key") secret_key = value;
@@ -53,7 +71,7 @@ Config::Config(const std::string &filePath) : secret_key{}, log_file{""}, firewa
             } catch (std::invalid_argument const& ex){
                 throw std::invalid_argument{"ban_timer is not a valid number"}; 
             } catch (std::out_of_range const& ex) {
-                throw std::invalid_argument{"ban_timer numbner is too bug"};
+                throw std::invalid_argument{"ban_timer numbner is too big"};
             }
             if (ban_timer < 0) throw std::invalid_argument{"ban_timer must be a positive number"}; 
         }
@@ -61,9 +79,13 @@ Config::Config(const std::string &filePath) : secret_key{}, log_file{""}, firewa
             auto service = key.substr(0,key.find("_sequence"));
             populateSequencesKnockPorts(service,value);
         }
-        else if (key.find("_unlock") != std::string::npos) throw std::runtime_error{"TODO"};
+        else if (key.find("_unlock") != std::string::npos) {
+            auto service = key.substr(0,key.find("_unlock"));
+            populateSequencesUnlockPorts(service,value);
+        }
         else throw std::invalid_argument{"Unknown value of: " + key};
     }
+    file.close();
 }
 std::string Config::getSecretKey() const{
     return secret_key;
@@ -82,7 +104,4 @@ int Config::getBanTimer() const{
 }
 std::unordered_map<std::string, sequence> Config::getSequences() const{
     return sequences;
-}
-Config::~Config()
-{
 }

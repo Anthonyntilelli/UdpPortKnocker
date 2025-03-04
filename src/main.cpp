@@ -1,4 +1,5 @@
 #include "config.h"
+#include "utility.h"
 
 constexpr auto config_file {"config/udpknocker.conf"};
 
