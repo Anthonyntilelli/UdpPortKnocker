@@ -13,12 +13,12 @@ void Sequence::addPortToSequence(const int port) {
 }
 
 void Sequence::setunlockPort(const int port, const bool isTcp) {
+  tcp = isTcp;
   if (port >= 1 && port <= 65535)
     unlockPort = port;
   else
     throw std::invalid_argument(
         "Unlock port is not a valid, it must be in between 1 and 65535");
-  tcp = isTcp;
 }
 
 bool Sequence::isValid() const {

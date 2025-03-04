@@ -12,7 +12,7 @@ int main(int argc, char *argv[]) {
 
   if (std::strcmp(argv[1], "validate") == 0) {
     if (argc != 3) {
-      std::cerr << "Missing config file path or to many parameters provided"
+      std::cerr << "Missing config file path or too many parameters provided"
                 << std::endl;
       return 1;
     }

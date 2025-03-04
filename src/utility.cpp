@@ -35,19 +35,9 @@ std::vector<std::string> parseCSV(const std::string &input) {
 }
 // splits a "/" into two parts, the second part will be "" if no / is present
 std::pair<std::string, std::string> parseSlash(const std::string &input) {
-  std::string first{};
-  std::string second{};
-  bool foundSlash{false};
-  for (auto c : input) {
-    if (c == '/') {
-      foundSlash = true;
-      continue;
-    }
-    if (!foundSlash)
-      first += c;
-    else
-      second += c;
-  }
-  return std::make_pair(first, second);
+  size_t pos = input.find('/');
+  if (pos == std::string::npos)
+    return {input, ""}; // No slash
+  return {input.substr(0, pos), input.substr(pos + 1)};
 }
 } // namespace utility
