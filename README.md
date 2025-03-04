@@ -1,6 +1,20 @@
 # UdpPortKnocker
 A port knocker server written is C++
 
-## BUILD
+## Manual BUILD (TESTING)
 
-rm main.out ;g++ -fdiagnostics-color=always -fno-omit-frame-pointer -g -Wall -std=c++23 -fsanitize=address src/*.cpp -o main.out ; ./main.out
+`g++ -fdiagnostics-color=always -fno-omit-frame-pointer -Og -Wall -Wextra -Wpedantic -Wshadow -Wconversion -std=c++23 -fsanitize=address,undefined,leak -D_GLIBCXX_ASSERTIONS src/*.cpp -o bin/udpknocker.out`
+
+`./bin/udpknocker.out`
+
+### No ASan
+`g++ -fdiagnostics-color=always -fno-omit-frame-pointer -Og -Wall -Wextra -Wpedantic -Wshadow -Wconversion -std=c++23 -D_GLIBCXX_ASSERTIONS src/*.cpp -o bin/udpknocker.out`
+
+`valgrind --leak-check=full --track-origins=yes --show-leak-kinds=all ./bin/udpknocker.out`
+
+## Static Analysis
+
+`cppcheck --enable=all --inconclusive src/`
+
+## Formatting
+`clang-format -i src/*`
