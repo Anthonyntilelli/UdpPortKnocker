@@ -1,5 +1,5 @@
-#ifndef __UTILITY__
-#define __UTILITY__
+#ifndef UTILITY_H
+#define UTILITY_H
 
 #include <algorithm>
 #include <cctype>

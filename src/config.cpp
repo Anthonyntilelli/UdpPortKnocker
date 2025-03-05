@@ -88,9 +88,11 @@ void Config::validate() {
   valid = true;
 }
 
-Config::Config(const std::string &filePath)
+Config::Config()
     : secret_key{}, log_file{""}, firewall{firewallType::invalid}, ban{false},
-      ban_timer{-1}, sequences{}, valid{false} {
+      ban_timer{-1}, sequences{}, valid{false} {}
+
+void Config::load(const std::string &filePath) {
   std::ifstream file{filePath};
   if (!file)
     throw std::invalid_argument("Cannot open the config file at: " + filePath +
@@ -120,6 +122,7 @@ Config::Config(const std::string &filePath)
       if (!log.good())
         throw std::invalid_argument("Cannot open the log file at: " + value +
                                     ".");
+      log.close();
     } else if (key == "firewall")
       firewall = setFirewallType(value);
     else if (key == "ban") {

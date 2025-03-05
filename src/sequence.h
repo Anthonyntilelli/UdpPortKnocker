@@ -1,5 +1,5 @@
-#ifndef __SEQUENCE__
-#define __SEQUENCE__
+#ifndef SEQUENCE_H
+#define SEQUENCE_H
 #include <stdexcept>
 #include <unordered_set>
 #include <vector>

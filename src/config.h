@@ -1,5 +1,6 @@
-#ifndef __CONFIG__
-#define __CONFIG__
+#ifndef CONFIG_H
+#define CONFIG_H
+#include "enum.h"
 #include "sequence.h"
 #include "utility.h"
 #include <algorithm>
@@ -11,8 +12,6 @@
 #include <unordered_map>
 #include <utility>
 #include <vector>
-
-enum class firewallType { invalid = 0, mock, ufw, firewalld, iptables };
 
 class Config {
 private:
@@ -36,7 +35,8 @@ private:
 
 public:
   // Can throw invalid_argument if there are errors in the config file.
-  explicit Config(const std::string &filePath);
+  explicit Config();
+  void load(const std::string &filePath);
   std::string getSecretKey() const;
   std::string getLogFile() const;
   firewallType getFirewall() const;
