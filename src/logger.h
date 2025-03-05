@@ -15,7 +15,7 @@ private:
   ~Logger();
   std::ofstream file;
   std::mutex mtx;
-  void reopenLogFile();
+  bool reopenLogFile();
   const std::string filePath;
 
 public:

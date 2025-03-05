@@ -6,7 +6,7 @@
             "type": "cppdbg",
             "request": "launch",
             "program": "${workspaceFolder}/bin/udpknocker.out",
-            "args": ["server"],   // Arguments to pass on startup
+            "args": ["knock", "localhost", "ssh"],   // Arguments to pass on startup
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",
             "environment": [],
@@ -15,7 +15,10 @@
             "MIMode": "gdb",
             "miDebuggerPath": "/usr/bin/gdb",
             // Ensure this matches the "label" in tasks.json
-            "preLaunchTask": "Build UdpPortKnocker"
+            "preLaunchTask": "Build UdpPortKnocker",
+            "setupCommands": [
+                { "text": "enable pretty-printing", "description": "Enable GDB pretty printing", "ignoreFailures": true },
+            ]
         }
     ]
 }

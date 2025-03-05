@@ -12,7 +12,7 @@ void Sequence::addPortToSequence(const int port) {
         "Sequence port is not a valid, it must be in between 1024 and 65535");
 }
 
-void Sequence::setunlockPort(const int port, const bool isTcp) {
+void Sequence::setUnlockPort(const int port, const bool isTcp) {
   tcp = isTcp;
   if (port >= 1 && port <= 65535)
     unlockPort = port;
