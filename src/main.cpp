@@ -1,9 +1,9 @@
 #include "config.h"
+// #include "logger.h"
 #include "utility.h"
-#include <cstring>
 // #include <atomic>
 // #include <csignal>
-// #include "logger.h"
+// #include <cstring>
 
 constexpr auto CONFIG_FILE{"config/udpknocker.conf"};
 
@@ -56,13 +56,18 @@ bool knock(int argc, char *argv[], Config cfg) {
   try {
     for (auto kPort : cfg.getSequences().at(app).getKnockPorts()) {
       auto authHash = utility::makeAuthHash(kPort, cfg.getSecretKey());
-      // TODO KNOCK
+      try {
+        utility::knockIp4(ip, static_cast<uint16_t>(kPort), authHash);
+      } catch (const std::runtime_error &e) {
+        std::cerr << e.what() << std::endl;
+        return false;
+      }
     }
-  } catch (std::out_of_range &_) {
+  } catch (const std::out_of_range &_) {
     std::cerr << "Unknown application" << std::endl;
     return false;
   }
-  return false;
+  return true;
 }
 
 // bool server(int argc, char *argv[], Config cfg) {

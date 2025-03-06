@@ -101,4 +101,37 @@ bool validateHash(const std::string &hash, const int port,
   return std::any_of(allowedHashes.begin(), allowedHashes.end(),
                      [hash](auto x) { return x == hash; });
 }
+
+// Data is sent but there is no receiving of data
+void knockIp4(const std::string &destinationIp, const unsigned short port,
+              const std::string &message) {
+  int sockfd = socket(AF_INET, SOCK_DGRAM, 0);
+  if (sockfd < 0)
+    throw std::runtime_error("Socket creation failed: " +
+                             std::string(strerror(errno)));
+
+  // Filling server information
+  struct sockaddr_in servaddr {};
+  servaddr.sin_family = AF_INET;
+  servaddr.sin_port = htons(port);
+
+  std::string ip = (destinationIp == "localhost") ? "127.0.0.1" : destinationIp;
+  if (inet_pton(AF_INET, ip.c_str(), &servaddr.sin_addr) <= 0) {
+    close(sockfd);
+    throw std::runtime_error("Invalid IP address format: " + destinationIp);
+  }
+
+  ssize_t sentBytes =
+      sendto(sockfd, message.c_str(), message.size(), MSG_CONFIRM,
+             (const struct sockaddr *)&servaddr, sizeof(servaddr));
+  if (sentBytes < 0) {
+    close(sockfd);
+    throw std::runtime_error("Failed to send data: " +
+                             std::string(strerror(errno)));
+  } else if (static_cast<size_t>(sentBytes) != message.size()) {
+    close(sockfd);
+    throw std::runtime_error("warning: Not all bytes were sent!");
+  }
+  close(sockfd);
+}
 } // namespace utility

@@ -14,7 +14,7 @@ A port knocker server written is C++
 
 ## Static Analysis
 
-`cppcheck --enable=all --inconclusive src/`
+`cppcheck --enable=all --check-config --inconclusive --suppress=missingIncludeSystem src/`
 
 ## Formatting
 `clang-format -i src/*`
