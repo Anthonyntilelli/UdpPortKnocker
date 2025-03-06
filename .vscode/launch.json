@@ -6,7 +6,7 @@
             "type": "cppdbg",
             "request": "launch",
             "program": "${workspaceFolder}/bin/udpknocker.out",
-            "args": ["knock", "localhost", "ssh"],   // Arguments to pass on startup
+            "args": ["server"],   // Arguments to pass on startup
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",
             "environment": [],

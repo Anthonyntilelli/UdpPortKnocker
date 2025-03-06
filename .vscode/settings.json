@@ -59,7 +59,8 @@
         "mutex": "cpp",
         "csignal": "cpp",
         "iomanip": "cpp",
-        "cinttypes": "cpp"
+        "cinttypes": "cpp",
+        "list": "cpp"
     },
     "cSpell.words": [
         "cppcheck",
@@ -70,6 +71,7 @@
         "hmac",
         "lcrypto",
         "lssl",
+        "MOCKFIREWALL",
         "udpknocker",
         "valgrind",
         "Wconversion",
