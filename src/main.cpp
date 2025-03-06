@@ -4,6 +4,8 @@
 // #include <atomic>
 // #include <csignal>
 // #include <cstring>
+#include <chrono>
+#include <thread>
 
 constexpr auto CONFIG_FILE{"config/udpknocker.conf"};
 
@@ -42,7 +44,7 @@ bool validate(int argc, char *argv[], Config cfg) {
 // returns success
 bool knock(int argc, char *argv[], Config cfg) {
   if (argc != 4) {
-    std::cerr << "Too many argument or to Few" << std::endl;
+    std::cerr << "Too many argument or too few" << std::endl;
     return false;
   }
   try {
@@ -62,9 +64,13 @@ bool knock(int argc, char *argv[], Config cfg) {
         std::cerr << e.what() << std::endl;
         return false;
       }
+      // Short delay before sending each knock
+      std::this_thread::sleep_for(std::chrono::seconds(1));
     }
   } catch (const std::out_of_range &_) {
-    std::cerr << "Unknown application" << std::endl;
+    std::cerr << "Unknown application (not referenced in config "
+                 "<application>_sequence)"
+              << std::endl;
     return false;
   }
   return true;
