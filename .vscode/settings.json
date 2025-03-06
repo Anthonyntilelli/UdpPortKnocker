@@ -56,7 +56,10 @@
         "stop_token": "cpp",
         "thread": "cpp",
         "condition_variable": "cpp",
-        "mutex": "cpp"
+        "mutex": "cpp",
+        "csignal": "cpp",
+        "iomanip": "cpp",
+        "cinttypes": "cpp"
     },
     "cSpell.words": [
         "cppcheck",
@@ -65,6 +68,8 @@
         "fsanitize",
         "GLIBCXX",
         "hmac",
+        "lcrypto",
+        "lssl",
         "udpknocker",
         "valgrind",
         "Wconversion",

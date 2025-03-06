@@ -18,7 +18,7 @@ public:
   void addPortToSequence(const int port);
   // Check is the unlock port is in a range of allowed ports
   // Throws std::invalid of not in range
-  void setunlockPort(const int port, const bool isTcp);
+  void setUnlockPort(const int port, const bool isTcp);
   // returns if sequence is valid
   bool isValid() const;
   int getUnlockPort() const;

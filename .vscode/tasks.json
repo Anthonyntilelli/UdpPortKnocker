@@ -18,6 +18,8 @@
                 "-fsanitize=address,undefined,leak",
                 "-D_GLIBCXX_ASSERTIONS",
                 "${workspaceFolder}/src/*.cpp",
+                "-lssl",
+                "-lcrypto",
                 "-o",
                 "${workspaceFolder}/bin/udpknocker.out"
             ],

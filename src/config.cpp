@@ -19,14 +19,9 @@ void Config::populateSequencesKnockPorts(const std::string &key,
   sequences.at(key)
       .clearKnockerPorts(); // Wipe the existing KnockerPort settings
   for (auto &port : knockerPorts) {
-    int numberPort{-1};
-    try {
-      numberPort = std::stoi(port);
-    } catch (std::invalid_argument const &ex) {
-      throw std::invalid_argument{"port " + port + " is not a valid number"};
-    } catch (std::out_of_range const &ex) {
-      throw std::invalid_argument{"port " + port + " is too big a number"};
-    }
+    int numberPort =
+        utility::stoi(port, "port " + port + " is not a valid number",
+                      "port " + port + " is too big a number");
     sequences.at(key).addPortToSequence(numberPort);
   }
 }
@@ -37,16 +32,10 @@ void Config::populateSequencesUnlockPorts(const std::string &key,
   if (portDef.second.empty())
     throw std::invalid_argument{"Missing / in " + key + "_unlock"};
   sequences.try_emplace(key, Sequence{});
-  int numberPort{-1};
-  try {
-    numberPort = std::stoi(port);
-  } catch (std::invalid_argument const &ex) {
-    throw std::invalid_argument{"unlock port " + port +
-                                " is not a valid number"};
-  } catch (std::out_of_range const &ex) {
-    throw std::invalid_argument{"unlockPort " + port + " is too big a number"};
-  }
-  sequences.at(key).setunlockPort(numberPort, (portDef.second == "tcp"));
+  int numberPort =
+      utility::stoi(port, "unlock port " + port + " is not a valid number",
+                    "unlockPort " + port + " is too big a number");
+  sequences.at(key).setUnlockPort(numberPort, (portDef.second == "tcp"));
 }
 
 std::vector<int> Config::dumpPorts() const {
@@ -119,7 +108,7 @@ void Config::load(const std::string &filePath) {
     else if (key == "log_file") {
       log_file = value;
       std::ofstream log{value, std::ios::app};
-      if (!log.good())
+      if (!log.is_open())
         throw std::invalid_argument("Cannot open the log file at: " + value +
                                     ".");
       log.close();
@@ -130,13 +119,8 @@ void Config::load(const std::string &filePath) {
         throw std::invalid_argument{"ban value is incorrect!"};
       ban = (value == "true");
     } else if (key == "ban_timer") {
-      try {
-        ban_timer = std::stoi(value);
-      } catch (std::invalid_argument const &ex) {
-        throw std::invalid_argument{"ban_timer is not a valid number"};
-      } catch (std::out_of_range const &ex) {
-        throw std::invalid_argument{"ban_timer number is too big"};
-      }
+      ban_timer = utility::stoi(value, "ban_timer is not a valid number",
+                                "ban_timer number is too big");
       if (ban_timer < 0)
         throw std::invalid_argument{"ban_timer must be a positive number"};
     } else if (key.find("_sequence") != std::string::npos) {
