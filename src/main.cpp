@@ -1,7 +1,7 @@
 #include "config.h"
 #include "logger.h"
-#include "IFirewall/ifirewall.h"
-#include "utility.h"
+#include "ifirewall.h"
+#include "mockFirewall.h"
 #include <atomic>
 #include <csignal>
 #include <cstring>
@@ -90,9 +90,9 @@ bool server(int argc, char *argv[], Config cfg) {
     return false;
   }
   Logger &log = Logger::getInstance(cfg.getLogFile());
-  throw std::runtime_error{"Place Holder"};
+  // throw std::runtime_error{"Place Holder"};
   try{
-    IFirewall &firewall= IFirewall::getInstance(cfg.getFirewall(), log);
+    IFirewall &firewall= utility::getFwInstance(cfg.getFirewall(), log);
   } catch (const std::runtime_error &e){
     std::cerr << e.what() << std::endl;
     return false;

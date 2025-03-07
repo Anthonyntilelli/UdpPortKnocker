@@ -134,4 +134,27 @@ void knockIp4(const std::string &destinationIp, const unsigned short port,
   }
   close(sockfd);
 }
+
+IFirewall& getFwInstance(const firewallType type, Logger &log){
+      switch(type){
+          case (firewallType::invalid):
+          throw std::runtime_error{"Error:This is not a valid type."};
+          break;
+          case (firewallType::mock):
+            return MockFirewall::getInstance(log);
+          break;
+          case (firewallType::ufw):
+          throw std::runtime_error{"Error: Not Implemented"};        
+          break;
+          case (firewallType::firewalld):
+          throw std::runtime_error{"Error: Not Implemented"};
+          break;
+          case (firewallType::iptables):
+          throw std::runtime_error{"Error: Not Implemented"};
+          break;
+          default:
+          throw std::runtime_error{"Error: Should not get here."};
+          break;
+      }
+    }
 } // namespace utility

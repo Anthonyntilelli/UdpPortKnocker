@@ -12,7 +12,10 @@ The firewall for this application only modifies input related rules, it will not
 ### No ASan
 `g++ -fdiagnostics-color=always -fno-omit-frame-pointer -Og -Wall -Wextra -Wpedantic -Wshadow -Wconversion -std=c++23  -D_GLIBCXX_ASSERTIONS src/*.cpp -lssl -lcrypto -o bin/udpknocker.out`
 
-`valgrind --leak-check=full --track-origins=yes --show-leak-kinds=all ./bin/udpknocker.out`
+`valgrind --leak-check=full --track-origins=yes --show-leak-kinds=all ./bin/udpknocker.out # Memory checks`
+
+`valgrind --tool=helgrind ./bin/udpknocker.out # thread test(s)`
+
 
 ## Static Analysis
 

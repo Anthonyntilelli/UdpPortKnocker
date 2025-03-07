@@ -17,6 +17,8 @@
 #include <unistd.h>
 #include <utility>
 #include <vector>
+#include "ifirewall.h"
+#include "mockFirewall.h"
 
 namespace utility {
 void ltrim(std::string &s);
@@ -31,6 +33,7 @@ bool validateHash(const std::string &hash, const int port,
                   const std::string &secret, const unsigned int leeway);
 void knockIp4(const std::string &destinationIp, const unsigned short port,
               const std::string &message);
+IFirewall& getFwInstance(const firewallType type, Logger &log);
 } // namespace utility
 
 #endif
