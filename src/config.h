@@ -8,6 +8,7 @@
 #include <fstream>
 #include <iostream>
 #include <stdexcept>
+#include <unistd.h>
 #include <string>
 #include <unordered_map>
 #include <utility>

@@ -60,20 +60,27 @@ void Config::validate() {
   if (ban_timer == -1 && ban)
     throw std::invalid_argument{"`ban_timer` is missing from config."};
   if (sequences.empty())
-    throw std::invalid_argument{"Missing _sequence or _unlock code"};
+    throw std::invalid_argument{"Missing _sequence or _unlock code."};
   for (auto [key, seq] : sequences) {
     if (!seq.isValid())
       throw std::invalid_argument{"Invalid " + key + "_unlock or " + key +
-                                  "_sequence"};
+                                  "_sequence."};
   }
   auto allPorts = dumpPorts();
   std::unordered_set<int> dupCheck{};
   for (int port : allPorts) {
     if (dupCheck.find(port) != dupCheck.end())
       throw std::invalid_argument(
-          "Duplicate port found in knockerSequence or UDP unlock port");
+          "Duplicate port found in knockerSequence or UDP unlock port.");
     dupCheck.insert(port);
   }
+  //Non mock firewall will need root access 
+  // RUN last because on validate this is to make sure everything else is ok
+  uid_t uid = getuid();
+  if (firewall != firewallType::mock && uid != 0){
+    throw std::invalid_argument("Non-Mock Firewall must be be run as root.");
+  }
+
   valid = true;
 }
 
@@ -82,6 +89,7 @@ Config::Config()
       ban_timer{-1}, sequences{}, valid{false} {}
 
 void Config::load(const std::string &filePath) {
+
   std::ifstream file{filePath};
   if (!file)
     throw std::invalid_argument("Cannot open the config file at: " + filePath +

@@ -19,6 +19,7 @@
 #include <vector>
 #include "ifirewall.h"
 #include "mockFirewall.h"
+#include "ufwFirewall.h"
 
 namespace utility {
 void ltrim(std::string &s);

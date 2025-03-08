@@ -144,7 +144,7 @@ IFirewall& getFwInstance(const firewallType type, Logger &log){
             return MockFirewall::getInstance(log);
           break;
           case (firewallType::ufw):
-          throw std::runtime_error{"Error: Not Implemented"};        
+            return UfwFirewall::getInstance(log);     
           break;
           case (firewallType::firewalld):
           throw std::runtime_error{"Error: Not Implemented"};
