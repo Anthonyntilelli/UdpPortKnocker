@@ -7,12 +7,13 @@
 #include <utility>
 #include <mutex>
 #include <fstream>
+#include <unordered_map>
 
 class MockFirewall : public IFirewall {
 
     private:
-      /// IP Address, port
-      std::list<std::pair<std::string, int>> AllowRules;
+      /// IP Address, {port, isTcp}
+      std::unordered_map<std::string,std::unordered_map<int, bool>> allowRules;
       // Ip address, Time
       std::list<std::pair<std::string, int>> banList;
       std::mutex mtx;
@@ -29,10 +30,13 @@ class MockFirewall : public IFirewall {
       ~MockFirewall();
       bool allow_in(std::string ip, Protocol protocol, size_t port);
       bool block(std::string ip, size_t timeSec);
+      bool unblock(std::string ip, size_t timeSec);
 
       static MockFirewall& getInstance(Logger &Log);
 
       MockFirewall(const MockFirewall &cpy) = delete;
       MockFirewall &operator=(const MockFirewall &cpy) = delete;
+      MockFirewall (MockFirewall &org) = delete;
+      MockFirewall &operator=(MockFirewall &&org) = delete;
 };
 #endif

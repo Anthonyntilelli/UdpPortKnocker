@@ -23,6 +23,8 @@ public:
   void log(const std::string &message);
 
   Logger(const Logger &cpy) = delete;
-  Logger &operator=(const Logger &) = delete;
+  Logger &operator=(const Logger &cpy) = delete;
+  Logger (Logger &org) = delete;
+  Logger &operator=(Logger &&org) = delete;
 };
 #endif

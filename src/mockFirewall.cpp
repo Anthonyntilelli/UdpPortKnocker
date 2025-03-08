@@ -1,6 +1,6 @@
 #include "mockFirewall.h"
 
-MockFirewall::MockFirewall(Logger &log):primaryLog{log},AllowRules{},banList{},mtx{}
+MockFirewall::MockFirewall(Logger &log):primaryLog{log},allowRules{},banList{},mtx{}
 {
     transactionLog.open(logPath, std::ios::app);
     if (!transactionLog.is_open()) throw std::runtime_error("Cannot open the Transaction log file at: " + logPath + ".");
@@ -33,6 +33,7 @@ bool MockFirewall::allow_in(std::string ip, Protocol protocol, size_t port) {
 }
 
 bool MockFirewall::block(std::string ip, size_t timeSec) { return false; }
+bool MockFirewall::unblock(std::string ip, size_t timeSec) { return false; }
 
 MockFirewall &MockFirewall::getInstance(Logger &log) {
   static MockFirewall instance(log);
