@@ -1,18 +1,9 @@
 #include "mockFirewall.h"
 
-MockFirewall::MockFirewall(Logger &log):primaryLog{log},allowRules{},banList{},mtx{}
+MockFirewall::MockFirewall(Logger &log):primaryLog{log},mtx{}
 {
-    transactionLog.open(logPath, std::ios::app);
-    if (!transactionLog.is_open()) throw std::runtime_error("Cannot open the Transaction log file at: " + logPath + ".");
     primaryLog.log("Server Starting: MockFirewall class is created");
-}
-
-bool MockFirewall::addRule(std::string ip, Protocol protocol, size_t port) noexcept {
-    return false;
-}
-
-bool MockFirewall::removeRule(std::string ip, Protocol protocol, size_t port) noexcept {
-  return false;
+    primaryLog.log("Warning: MockFirewall only posts to logs, no real ports are open");
 }
 
 MockFirewall::~MockFirewall() {
@@ -21,19 +12,35 @@ MockFirewall::~MockFirewall() {
   } catch(...){
     std::cerr << "Error in closing the Logger Class." << std::endl;
   }
-
-  //TODO: Purge Firewall rule (regular and ban)
-
-  if (transactionLog.is_open()) transactionLog.close();
 }
-
 
 bool MockFirewall::allow_in(std::string ip, Protocol protocol, size_t port) {
-  return false;
+  std::lock_guard<std::mutex> lck(mtx);
+  std::string strProtocol = (protocol == Protocol::tcp) ? "tcp" : "udp";
+
+  primaryLog.log("Rule ADDED for  Allow IP:" + ip + "Protocol: " + strProtocol + "Port: " + std::to_string(port));
+  return true;
 }
 
-bool MockFirewall::block(std::string ip, size_t timeSec) { return false; }
-bool MockFirewall::unblock(std::string ip, size_t timeSec) { return false; }
+bool MockFirewall::removeRule(std::string ip, Protocol protocol, size_t port) {
+  std::lock_guard<std::mutex> lck(mtx);
+  std::string strProtocol = (protocol == Protocol::tcp) ? "tcp" : "udp";
+
+  primaryLog.log("Rule REMOVED for Allow IP:" + ip + "Protocol: " + strProtocol + "Port: " + std::to_string(port));
+  return true;
+}
+
+bool MockFirewall::block(std::string ip) {
+  std::lock_guard<std::mutex> lck(mtx);
+  primaryLog.log("Ban Rule added for IP:" + ip);
+  return true;
+}
+
+bool MockFirewall::unblock(std::string ip) {
+  std::lock_guard<std::mutex> lck(mtx);
+  primaryLog.log("Ban Rule removed for IP:" + ip);
+  return true;
+}
 
 MockFirewall &MockFirewall::getInstance(Logger &log) {
   static MockFirewall instance(log);

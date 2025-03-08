@@ -90,7 +90,6 @@ bool server(int argc, char *argv[], Config cfg) {
     return false;
   }
   Logger &log = Logger::getInstance(cfg.getLogFile());
-  // throw std::runtime_error{"Place Holder"};
   try{
     IFirewall &firewall= utility::getFwInstance(cfg.getFirewall(), log);
   } catch (const std::runtime_error &e){
