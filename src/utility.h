@@ -1,6 +1,9 @@
 #ifndef UTILITY_H
 #define UTILITY_H
 
+#include "ifirewall.h"
+#include "mockFirewall.h"
+#include "ufwFirewall.h"
 #include <algorithm>
 #include <arpa/inet.h>
 #include <cctype>
@@ -17,15 +20,12 @@
 #include <unistd.h>
 #include <utility>
 #include <vector>
-#include "ifirewall.h"
-#include "mockFirewall.h"
-#include "ufwFirewall.h"
 
 namespace utility {
 
 struct CommandResult {
-    std::string output;
-    int exitCode;
+  std::string output;
+  int exitCode;
 };
 
 void ltrim(std::string &s);
@@ -40,8 +40,8 @@ bool validateHash(const std::string &hash, const int port,
                   const std::string &secret, const unsigned int leeway);
 void knockIp4(const std::string &destinationIp, const unsigned short port,
               const std::string &message);
-IFirewall& getFwInstance(const firewallType type, Logger &log, bool sudo);
-CommandResult execCommand(const std::string& command);
+IFirewall &getFwInstance(const firewallType type, Logger &log, bool sudo);
+CommandResult execCommand(const std::string &command);
 } // namespace utility
 
 #endif

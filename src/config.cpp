@@ -74,10 +74,10 @@ void Config::validate() {
           "Duplicate port found in knockerSequence or UDP unlock port.");
     dupCheck.insert(port);
   }
-  //Non mock firewall will need root access 
+  // Non mock firewall will need root access
   // RUN last because on validate this is to make sure everything else is ok
-  auto uid =  getuid();
-if(firewall != firewallType::mock && !(sudo || uid == 0)) {
+  auto uid = getuid();
+  if (firewall != firewallType::mock && !(sudo || uid == 0)) {
     throw std::invalid_argument("Non-Mock Firewall must be be run as root.");
   }
 
@@ -127,9 +127,10 @@ void Config::load(const std::string &filePath) {
         throw std::invalid_argument{"ban value is incorrect!"};
       ban = (value == "true");
     } else if (key == "sudo") {
-        if (value != "true" && value != "false")
-          throw std::invalid_argument{"sudo value is incorrect! (value is " + value + ")"};
-        sudo = (value == "true");
+      if (value != "true" && value != "false")
+        throw std::invalid_argument{"sudo value is incorrect! (value is " +
+                                    value + ")"};
+      sudo = (value == "true");
     } else if (key == "ban_timer") {
       ban_timer = utility::stoi(value, "ban_timer is not a valid number",
                                 "ban_timer number is too big");

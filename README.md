@@ -15,7 +15,6 @@ The firewall for this application only modifies input related rules, it will not
 ## Leak testing
 
 `valgrind --leak-check=full --track-origins=yes --show-leak-kinds=all ./bin/udpknocker.out # Memory checks`
-
 `valgrind --tool=helgrind ./bin/udpknocker.out # thread test(s)`
 
 

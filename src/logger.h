@@ -24,7 +24,7 @@ public:
 
   Logger(const Logger &cpy) = delete;
   Logger &operator=(const Logger &cpy) = delete;
-  Logger (Logger &org) = delete;
+  Logger(Logger &org) = delete;
   Logger &operator=(Logger &&org) = delete;
 };
 #endif

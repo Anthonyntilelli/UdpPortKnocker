@@ -1,11 +1,11 @@
 #include "config.h"
-#include "logger.h"
 #include "ifirewall.h"
+#include "logger.h"
 #include "mockFirewall.h"
 #include <atomic>
+#include <chrono>
 #include <csignal>
 #include <cstring>
-#include <chrono>
 #include <thread>
 
 constexpr auto CONFIG_FILE{"config/udpknocker.conf"};
@@ -18,10 +18,11 @@ void signalHandler(int signum) {
 
 // always return false
 bool help() {
-  std::cerr << "Select on of the valid paramater: `validate`, `knock`, or `server` \n"
-            << "validate <path to config> \n" 
-            << "knock <ipaddress (ipv4)> <service from the config> \n"
-            << "server" << std::endl;
+  std::cerr
+      << "Select on of the valid paramater: `validate`, `knock`, or `server` \n"
+      << "validate <path to config> \n"
+      << "knock <ipaddress (ipv4)> <service from the config> \n"
+      << "server" << std::endl;
   return false;
 }
 
@@ -77,7 +78,7 @@ bool knock(int argc, char *argv[], Config cfg) {
   return true;
 }
 
-bool server(int argc, char *argv[], Config cfg) {
+bool server(int argc, Config cfg) {
   if (argc != 2) {
     std::cerr << "Too many argument or too few" << std::endl;
     return false;
@@ -89,9 +90,10 @@ bool server(int argc, char *argv[], Config cfg) {
     return false;
   }
   Logger &log = Logger::getInstance(cfg.getLogFile());
-  try{
-    IFirewall &firewall= utility::getFwInstance(cfg.getFirewall(), log, cfg.getSudo());
-  } catch (const std::runtime_error &e){
+  try {
+    IFirewall &firewall =
+        utility::getFwInstance(cfg.getFirewall(), log, cfg.getSudo());
+  } catch (const std::runtime_error &e) {
     std::cerr << e.what() << std::endl;
     return false;
     // TODO:: SERVER
@@ -112,13 +114,20 @@ int main(int argc, char *argv[]) {
   else if (std::strcmp(argv[1], "knock") == 0)
     success = knock(argc, argv, cfg);
   else if (std::strcmp(argv[1], "server") == 0)
-    success = server(argc, argv, cfg);
-  else if (std::strcmp(argv[1], "test") == 0){
+    success = server(argc, cfg);
+  else if (std::strcmp(argv[1], "test") == 0) {
     cfg.load(CONFIG_FILE);
     Logger &log = Logger::getInstance(cfg.getLogFile());
-    IFirewall &firewall= utility::getFwInstance(cfg.getFirewall(), log,cfg.getSudo());
-    firewall.allow_in("1.1.1.1", Protocol::tcp, 22);
-    firewall.allow_in("2.2.2.2", Protocol::tcp, 55);
+    IFirewall &firewall =
+        utility::getFwInstance(cfg.getFirewall(), log, cfg.getSudo());
+
+    std::string one{"1.1.1.1"};
+    std::string two{"2.2.2.2"};
+    firewall.block(one);
+    firewall.block(two);
+    firewall.unblock(one);
+    firewall.unblock(two);
+
     success = false;
   }
 
