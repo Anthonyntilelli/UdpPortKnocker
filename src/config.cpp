@@ -5,8 +5,6 @@ firewallType Config::setFirewallType(const std::string &firewallString) {
     return firewallType::mock;
   if (firewallString == "ufw")
     return firewallType::ufw;
-  if (firewallString == "firewalld")
-    return firewallType::firewalld;
   if (firewallString == "iptables")
     return firewallType::iptables;
   throw std::invalid_argument("Invalid firewall type selected");

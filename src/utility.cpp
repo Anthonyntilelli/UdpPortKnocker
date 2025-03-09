@@ -146,9 +146,6 @@ IFirewall &getFwInstance(const firewallType type, Logger &log, bool sudo) {
   case (firewallType::ufw):
     return UfwFirewall::getInstance(log, sudo);
     break;
-  case (firewallType::firewalld):
-    throw std::runtime_error{"Error: Not Implemented"};
-    break;
   case (firewallType::iptables):
     throw std::runtime_error{"Error: Not Implemented"};
     break;
