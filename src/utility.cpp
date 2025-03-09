@@ -135,7 +135,7 @@ void knockIp4(const std::string &destinationIp, const unsigned short port,
   close(sockfd);
 }
 
-IFirewall& getFwInstance(const firewallType type, Logger &log){
+IFirewall& getFwInstance(const firewallType type, Logger &log, bool sudo){
       switch(type){
           case (firewallType::invalid):
           throw std::runtime_error{"Error:This is not a valid type."};
@@ -144,7 +144,7 @@ IFirewall& getFwInstance(const firewallType type, Logger &log){
             return MockFirewall::getInstance(log);
           break;
           case (firewallType::ufw):
-            return UfwFirewall::getInstance(log);     
+            return UfwFirewall::getInstance(log, sudo);     
           break;
           case (firewallType::firewalld):
           throw std::runtime_error{"Error: Not Implemented"};
@@ -157,4 +157,29 @@ IFirewall& getFwInstance(const firewallType type, Logger &log){
           break;
       }
     }
+
+//Warning:: This function does not vet the command sent to it.
+//Please valdate input BEFORE calling this command.
+CommandResult execCommand(const std::string& command) {
+  std::vector<char> buffer;
+  constexpr size_t CHUNK_SIZE = 4096;
+  char tempBuffer[CHUNK_SIZE];  // Temporary buffer for reads
+  size_t bytesRead;
+  std::string full_command = command + " 2>&1";
+
+  // Open a pipe to execute the command
+  FILE* pipe = popen(full_command.c_str(), "r");
+  if (!pipe) {
+      throw std::runtime_error("popen() failed!");
+  }
+
+  while ((bytesRead = fread(tempBuffer, 1, CHUNK_SIZE, pipe)) > 0) {
+      buffer.insert(buffer.end(), tempBuffer, tempBuffer + bytesRead);  // Append data
+  }
+
+  int status = pclose(pipe);
+  int exitCode = WEXITSTATUS(status);
+
+  return {std::string(buffer.begin(), buffer.end()), exitCode};
+}
 } // namespace utility

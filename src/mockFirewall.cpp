@@ -18,7 +18,7 @@ bool MockFirewall::allow_in(std::string ip, Protocol protocol, size_t port) {
   std::lock_guard<std::mutex> lck(mtx);
   std::string strProtocol = (protocol == Protocol::tcp) ? "tcp" : "udp";
 
-  primaryLog.log("Rule ADDED for  Allow IP:" + ip + "Protocol: " + strProtocol + "Port: " + std::to_string(port));
+  primaryLog.log("Succeeded in Adding for  Allow IP:" + ip + "Protocol: " + strProtocol + "Port: " + std::to_string(port));
   return true;
 }
 
@@ -26,7 +26,7 @@ bool MockFirewall::removeRule(std::string ip, Protocol protocol, size_t port) {
   std::lock_guard<std::mutex> lck(mtx);
   std::string strProtocol = (protocol == Protocol::tcp) ? "tcp" : "udp";
 
-  primaryLog.log("Rule REMOVED for Allow IP:" + ip + "Protocol: " + strProtocol + "Port: " + std::to_string(port));
+  primaryLog.log("Rule REMOVED for Allow IP:" + ip + " Protocol: " + strProtocol + " Port: " + std::to_string(port));
   return true;
 }
 

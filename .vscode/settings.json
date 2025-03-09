@@ -60,7 +60,8 @@
         "csignal": "cpp",
         "iomanip": "cpp",
         "cinttypes": "cpp",
-        "list": "cpp"
+        "list": "cpp",
+        "complex": "cpp"
     },
     "cSpell.words": [
         "cppcheck",
@@ -73,6 +74,7 @@
         "lssl",
         "MOCKFIREWALL",
         "udpknocker",
+        "UFWFIREWALL",
         "valgrind",
         "Wconversion",
         "Wextra",

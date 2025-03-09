@@ -22,6 +22,12 @@
 #include "ufwFirewall.h"
 
 namespace utility {
+
+struct CommandResult {
+    std::string output;
+    int exitCode;
+};
+
 void ltrim(std::string &s);
 void rtrim(std::string &s);
 std::vector<std::string> parseCSV(const std::string &input);
@@ -34,7 +40,8 @@ bool validateHash(const std::string &hash, const int port,
                   const std::string &secret, const unsigned int leeway);
 void knockIp4(const std::string &destinationIp, const unsigned short port,
               const std::string &message);
-IFirewall& getFwInstance(const firewallType type, Logger &log);
+IFirewall& getFwInstance(const firewallType type, Logger &log, bool sudo);
+CommandResult execCommand(const std::string& command);
 } // namespace utility
 
 #endif

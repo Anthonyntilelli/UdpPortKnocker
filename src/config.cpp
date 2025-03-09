@@ -76,8 +76,8 @@ void Config::validate() {
   }
   //Non mock firewall will need root access 
   // RUN last because on validate this is to make sure everything else is ok
-  uid_t uid = getuid();
-  if (firewall != firewallType::mock && uid != 0){
+  auto uid =  getuid();
+if(firewall != firewallType::mock && !(sudo || uid == 0)) {
     throw std::invalid_argument("Non-Mock Firewall must be be run as root.");
   }
 
@@ -86,7 +86,7 @@ void Config::validate() {
 
 Config::Config()
     : secret_key{}, log_file{""}, firewall{firewallType::invalid}, ban{false},
-      ban_timer{-1}, sequences{}, valid{false} {}
+      ban_timer{-1}, sequences{}, valid{false}, sudo{false} {}
 
 void Config::load(const std::string &filePath) {
 
@@ -126,6 +126,10 @@ void Config::load(const std::string &filePath) {
       if (value != "true" && value != "false")
         throw std::invalid_argument{"ban value is incorrect!"};
       ban = (value == "true");
+    } else if (key == "sudo") {
+        if (value != "true" && value != "false")
+          throw std::invalid_argument{"sudo value is incorrect! (value is " + value + ")"};
+        sudo = (value == "true");
     } else if (key == "ban_timer") {
       ban_timer = utility::stoi(value, "ban_timer is not a valid number",
                                 "ban_timer number is too big");
@@ -152,6 +156,8 @@ firewallType Config::getFirewall() const { return firewall; }
 bool Config::banEnabled() const { return ban; }
 
 int Config::getBanTimer() const { return ban_timer; }
+
+bool Config::getSudo() const { return sudo; }
 
 std::unordered_map<std::string, Sequence> Config::getSequences() const {
   return sequences;

@@ -9,8 +9,10 @@ The firewall for this application only modifies input related rules, it will not
 
 `./bin/udpknocker.out`
 
-### No ASan
+ ## Manual Build (No ASan)
 `g++ -fdiagnostics-color=always -fno-omit-frame-pointer -Og -Wall -Wextra -Wpedantic -Wshadow -Wconversion -std=c++23  -D_GLIBCXX_ASSERTIONS src/*.cpp -lssl -lcrypto -o bin/udpknocker.out`
+
+## Leak testing
 
 `valgrind --leak-check=full --track-origins=yes --show-leak-kinds=all ./bin/udpknocker.out # Memory checks`
 
@@ -25,7 +27,7 @@ The firewall for this application only modifies input related rules, it will not
 `clang-format -i src/*`
 
 ## Dependencies
-- sudo apt install libssl-dev
+- `sudo apt install libssl-dev`
 
 
 `g++ -std=c++23 src/*.cpp -lssl -lcrypto -o bin/udpknocker.out`

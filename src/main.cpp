@@ -18,11 +18,10 @@ void signalHandler(int signum) {
 
 // always return false
 bool help() {
-  std::cerr << "Select on of the valid paramater, `validate` or `knock`"
-            << std::endl;
-  std::cerr << "validate <path to config>" << std::endl;
-  std::cerr << "knock <ipaddress (ipv4)> <service from the config>"
-            << std::endl;
+  std::cerr << "Select on of the valid paramater: `validate`, `knock`, or `server` \n"
+            << "validate <path to config> \n" 
+            << "knock <ipaddress (ipv4)> <service from the config> \n"
+            << "server" << std::endl;
   return false;
 }
 
@@ -91,7 +90,7 @@ bool server(int argc, char *argv[], Config cfg) {
   }
   Logger &log = Logger::getInstance(cfg.getLogFile());
   try{
-    IFirewall &firewall= utility::getFwInstance(cfg.getFirewall(), log);
+    IFirewall &firewall= utility::getFwInstance(cfg.getFirewall(), log, cfg.getSudo());
   } catch (const std::runtime_error &e){
     std::cerr << e.what() << std::endl;
     return false;
@@ -114,6 +113,15 @@ int main(int argc, char *argv[]) {
     success = knock(argc, argv, cfg);
   else if (std::strcmp(argv[1], "server") == 0)
     success = server(argc, argv, cfg);
+  else if (std::strcmp(argv[1], "test") == 0){
+    cfg.load(CONFIG_FILE);
+    Logger &log = Logger::getInstance(cfg.getLogFile());
+    IFirewall &firewall= utility::getFwInstance(cfg.getFirewall(), log,cfg.getSudo());
+    firewall.allow_in("1.1.1.1", Protocol::tcp, 22);
+    firewall.allow_in("2.2.2.2", Protocol::tcp, 55);
+    success = false;
+  }
+
   else {
     std::cerr << "Unknown parameter" << std::endl;
     success = false;

@@ -8,16 +8,20 @@
 #include "ifirewall.h"
 #include "logger.h"
 #include "enum.h"
+#include "utility.h"
 #include <mutex>
-
+#include <stdexcept>
 
 class UfwFirewall : public IFirewall {
 
     private:
       std::mutex mtx;
       Logger &primaryLog;
+      bool sudo;
 
-      UfwFirewall(Logger &log);
+      UfwFirewall(Logger &log, bool useSudo);
+      bool validateIp(std::string ipaAddr);
+      bool validatePort(size_t port);
     public:
       ~UfwFirewall();
       bool allow_in(std::string ip, Protocol protocol, size_t port);
@@ -25,7 +29,7 @@ class UfwFirewall : public IFirewall {
       bool block(std::string ip);
       bool unblock(std::string ip);
 
-      static UfwFirewall& getInstance(Logger &log);
+      static UfwFirewall& getInstance(Logger &log, bool sudo);
 
       UfwFirewall(const UfwFirewall &cpy) = delete;
       UfwFirewall &operator=(const UfwFirewall &cpy) = delete;
