@@ -9,6 +9,12 @@ Logger::Logger(const std::string &logFilePath)
 }
 
 Logger::~Logger() {
+  try {
+    log("Server Stopping: Logger class is destroyed");
+  } catch (...) {
+    std::cerr << "Error in closing the Logger Class." << std::endl;
+  }
+
   if (file.is_open())
     file.close();
 }

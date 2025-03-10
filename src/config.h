@@ -9,6 +9,7 @@
 #include <iostream>
 #include <stdexcept>
 #include <string>
+#include <unistd.h>
 #include <unordered_map>
 #include <utility>
 #include <vector>
@@ -22,6 +23,7 @@ private:
   int ban_timer;
   std::unordered_map<std::string, Sequence> sequences;
   bool valid;
+  bool sudo;
 
   // Sets avd validates firewall type
   static firewallType setFirewallType(const std::string &firewallString);
@@ -42,6 +44,7 @@ public:
   firewallType getFirewall() const;
   bool banEnabled() const;
   int getBanTimer() const;
+  bool getSudo() const;
   std::unordered_map<std::string, Sequence> getSequences() const;
   bool isValid() const;
   ~Config() = default;

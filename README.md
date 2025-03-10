@@ -1,16 +1,22 @@
 # UdpPortKnocker
 A port knocker server written is C++
 
+The firewall for this application only modifies input related rules, it will not touch the outgoing rules.
+
 ## Manual BUILD (TESTING)
 
 `g++ -fdiagnostics-color=always -fno-omit-frame-pointer -Og -Wall -Wextra -Wpedantic -Wshadow -Wconversion -std=c++23 -fsanitize=address,undefined,leak -D_GLIBCXX_ASSERTIONS src/*.cpp -lssl -lcrypto -o bin/udpknocker.out`
 
 `./bin/udpknocker.out`
 
-### No ASan
+ ## Manual Build (No ASan)
 `g++ -fdiagnostics-color=always -fno-omit-frame-pointer -Og -Wall -Wextra -Wpedantic -Wshadow -Wconversion -std=c++23  -D_GLIBCXX_ASSERTIONS src/*.cpp -lssl -lcrypto -o bin/udpknocker.out`
 
-`valgrind --leak-check=full --track-origins=yes --show-leak-kinds=all ./bin/udpknocker.out`
+## Leak testing
+
+`valgrind --leak-check=full --track-origins=yes --show-leak-kinds=all ./bin/udpknocker.out # Memory checks`
+`valgrind --tool=helgrind ./bin/udpknocker.out # thread test(s)`
+
 
 ## Static Analysis
 
@@ -20,4 +26,5 @@ A port knocker server written is C++
 `clang-format -i src/*`
 
 ## Dependencies
-- sudo apt install libssl-dev
+- `sudo apt install libssl-dev`
+`

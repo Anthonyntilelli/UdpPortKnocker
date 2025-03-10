@@ -5,8 +5,6 @@ firewallType Config::setFirewallType(const std::string &firewallString) {
     return firewallType::mock;
   if (firewallString == "ufw")
     return firewallType::ufw;
-  if (firewallString == "firewalld")
-    return firewallType::firewalld;
   if (firewallString == "iptables")
     return firewallType::iptables;
   throw std::invalid_argument("Invalid firewall type selected");
@@ -60,28 +58,36 @@ void Config::validate() {
   if (ban_timer == -1 && ban)
     throw std::invalid_argument{"`ban_timer` is missing from config."};
   if (sequences.empty())
-    throw std::invalid_argument{"Missing _sequence or _unlock code"};
+    throw std::invalid_argument{"Missing _sequence or _unlock code."};
   for (auto [key, seq] : sequences) {
     if (!seq.isValid())
       throw std::invalid_argument{"Invalid " + key + "_unlock or " + key +
-                                  "_sequence"};
+                                  "_sequence."};
   }
   auto allPorts = dumpPorts();
   std::unordered_set<int> dupCheck{};
   for (int port : allPorts) {
     if (dupCheck.find(port) != dupCheck.end())
       throw std::invalid_argument(
-          "Duplicate port found in knockerSequence or UDP unlock port");
+          "Duplicate port found in knockerSequence or UDP unlock port.");
     dupCheck.insert(port);
   }
+  // Non mock firewall will need root access
+  // RUN last because on validate this is to make sure everything else is ok
+  auto uid = getuid();
+  if (firewall != firewallType::mock && !(sudo || uid == 0)) {
+    throw std::invalid_argument("Non-Mock Firewall must be be run as root.");
+  }
+
   valid = true;
 }
 
 Config::Config()
     : secret_key{}, log_file{""}, firewall{firewallType::invalid}, ban{false},
-      ban_timer{-1}, sequences{}, valid{false} {}
+      ban_timer{-1}, sequences{}, valid{false}, sudo{false} {}
 
 void Config::load(const std::string &filePath) {
+
   std::ifstream file{filePath};
   if (!file)
     throw std::invalid_argument("Cannot open the config file at: " + filePath +
@@ -118,6 +124,11 @@ void Config::load(const std::string &filePath) {
       if (value != "true" && value != "false")
         throw std::invalid_argument{"ban value is incorrect!"};
       ban = (value == "true");
+    } else if (key == "sudo") {
+      if (value != "true" && value != "false")
+        throw std::invalid_argument{"sudo value is incorrect! (value is " +
+                                    value + ")"};
+      sudo = (value == "true");
     } else if (key == "ban_timer") {
       ban_timer = utility::stoi(value, "ban_timer is not a valid number",
                                 "ban_timer number is too big");
@@ -144,6 +155,8 @@ firewallType Config::getFirewall() const { return firewall; }
 bool Config::banEnabled() const { return ban; }
 
 int Config::getBanTimer() const { return ban_timer; }
+
+bool Config::getSudo() const { return sudo; }
 
 std::unordered_map<std::string, Sequence> Config::getSequences() const {
   return sequences;

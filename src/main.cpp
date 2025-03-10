@@ -1,27 +1,28 @@
 #include "config.h"
-// #include "logger.h"
-#include "utility.h"
-// #include <atomic>
-// #include <csignal>
-// #include <cstring>
+#include "ifirewall.h"
+#include "logger.h"
+#include "mockFirewall.h"
+#include <atomic>
 #include <chrono>
+#include <csignal>
+#include <cstring>
 #include <thread>
 
 constexpr auto CONFIG_FILE{"config/udpknocker.conf"};
 
-// std::atomic<bool> RUNNING{true};
-// void signalHandler(int signum) {
-//   std::cout << "\nReceived signal " << signum << ", shutting down
-//   gracefully...\n"; RUNNING = false;
-// }
+std::atomic<bool> RUNNING{true};
+void signalHandler(int signum) {
+  std::cout << "\nReceived signal " << signum << "Shutting down" << std::endl;
+  RUNNING = false;
+}
 
 // always return false
 bool help() {
-  std::cerr << "Select on of the valid paramater, `validate` or `knock`"
-            << std::endl;
-  std::cerr << "validate <path to config>" << std::endl;
-  std::cerr << "knock <ipaddress (ipv4)> <service from the config>"
-            << std::endl;
+  std::cerr
+      << "Select on of the valid paramater: `validate`, `knock`, or `server` \n"
+      << "validate <path to config> \n"
+      << "knock <ipaddress (ipv4)> <service from the config> \n"
+      << "server" << std::endl;
   return false;
 }
 
@@ -59,6 +60,7 @@ bool knock(int argc, char *argv[], Config cfg) {
     for (auto kPort : cfg.getSequences().at(app).getKnockPorts()) {
       auto authHash = utility::makeAuthHash(kPort, cfg.getSecretKey());
       try {
+        std::cout << "Knocking on port: " << kPort << std::endl;
         utility::knockIp4(ip, static_cast<uint16_t>(kPort), authHash);
       } catch (const std::runtime_error &e) {
         std::cerr << e.what() << std::endl;
@@ -76,15 +78,32 @@ bool knock(int argc, char *argv[], Config cfg) {
   return true;
 }
 
-// bool server(int argc, char *argv[], Config cfg) {
-//   // TODO load config and validate argc and argv
-//   Logger &log = Logger::getInstance(cfg.getLogFile());
-//   return false;
-// }
+bool server(int argc, Config cfg) {
+  if (argc != 2) {
+    std::cerr << "Too many argument or too few" << std::endl;
+    return false;
+  }
+  try {
+    cfg.load(CONFIG_FILE);
+  } catch (const std::invalid_argument &e) {
+    std::cerr << e.what() << std::endl;
+    return false;
+  }
+  Logger &log = Logger::getInstance(cfg.getLogFile());
+  try {
+    IFirewall &firewall =
+        utility::getFwInstance(cfg.getFirewall(), log, cfg.getSudo());
+  } catch (const std::runtime_error &e) {
+    std::cerr << e.what() << std::endl;
+    return false;
+    // TODO:: SERVER
+  }
+  return false;
+}
 
 int main(int argc, char *argv[]) {
-  // std::signal(SIGINT, signalHandler);  // Ctrl+C
-  // std::signal(SIGTERM, signalHandler); // Kill command
+  std::signal(SIGINT, signalHandler);  // Ctrl+C
+  std::signal(SIGTERM, signalHandler); // Kill command
 
   Config cfg{}; // load before usage
   int success{false};
@@ -94,6 +113,17 @@ int main(int argc, char *argv[]) {
     success = validate(argc, argv, cfg);
   else if (std::strcmp(argv[1], "knock") == 0)
     success = knock(argc, argv, cfg);
+  else if (std::strcmp(argv[1], "server") == 0)
+    success = server(argc, cfg);
+  else if (std::strcmp(argv[1], "test") == 0) {
+    cfg.load(CONFIG_FILE);
+    Logger &log = Logger::getInstance(cfg.getLogFile());
+    IFirewall &firewall =
+        utility::getFwInstance(cfg.getFirewall(), log, cfg.getSudo());
+
+    success = false;
+  }
+
   else {
     std::cerr << "Unknown parameter" << std::endl;
     success = false;
