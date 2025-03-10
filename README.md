@@ -27,6 +27,4 @@ The firewall for this application only modifies input related rules, it will not
 
 ## Dependencies
 - `sudo apt install libssl-dev`
-
-
-`g++ -std=c++23 src/*.cpp -lssl -lcrypto -o bin/udpknocker.out`
+`

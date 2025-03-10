@@ -19,8 +19,8 @@ UfwFirewall::UfwFirewall(Logger &log, bool useSudo)
     auto majorVersion =
         result.output.substr(frontPos + 1, endPos - frontPos - 1);
     if (majorVersion != "0") {
-      log.log("Warning: This program was was tested on ufw major version 0 of "
-              "ufw it may not work on newer versions.");
+      log.log("Warning: This program was was tested on ufw major version 0. "
+              "This program may not work on newer versions.");
     }
   } else {
     log.log("Version check on ufw failed, will attempt anyway.");
@@ -54,11 +54,10 @@ bool UfwFirewall::validate(std::string &ipAddr, size_t port) {
 }
 
 UfwFirewall::~UfwFirewall() {
-  // TODO detect and remove remaining firewall rules
   try {
     primaryLog.log("Server Stopping: UfwFirewall class is destroyed");
   } catch (...) {
-    std::cerr << "Error in closing the Logger Class." << std::endl;
+    std::cerr << "Error in closing the UfwFirewall Class." << std::endl;
   }
 }
 
@@ -81,11 +80,11 @@ bool UfwFirewall::allow_in(std::string &ip, Protocol protocol, size_t port) {
 
   if (result.exitCode == 0) {
     primaryLog.log("Succeeded in Adding for  Allow IP:" + ip +
-                   " Protocol: " + proto + "Port: " + std::to_string(port));
+                   " Protocol: " + proto + "Port: " + sPort);
     return true;
   }
   primaryLog.log("Failed to add Rule for  Allow IP:" + ip +
-                 " Protocol: " + proto + "Port: " + std::to_string(port));
+                 " Protocol: " + proto + "Port: " + sPort);
   return false;
 }
 

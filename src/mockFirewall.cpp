@@ -10,7 +10,7 @@ MockFirewall::~MockFirewall() {
   try {
     primaryLog.log("Server Stopping: MockFirewall class is destroyed");
   } catch (...) {
-    std::cerr << "Error in closing the Logger Class." << std::endl;
+    std::cerr << "Error in closing the MockFirewall Class." << std::endl;
   }
 }
 

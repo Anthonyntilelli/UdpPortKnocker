@@ -121,13 +121,6 @@ int main(int argc, char *argv[]) {
     IFirewall &firewall =
         utility::getFwInstance(cfg.getFirewall(), log, cfg.getSudo());
 
-    std::string one{"1.1.1.1"};
-    std::string two{"2.2.2.2"};
-    firewall.block(one);
-    firewall.block(two);
-    firewall.unblock(one);
-    firewall.unblock(two);
-
     success = false;
   }
 

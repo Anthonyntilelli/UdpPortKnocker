@@ -2,6 +2,7 @@
 #define UTILITY_H
 
 #include "ifirewall.h"
+#include "iptableFirewall.h"
 #include "mockFirewall.h"
 #include "ufwFirewall.h"
 #include <algorithm>
