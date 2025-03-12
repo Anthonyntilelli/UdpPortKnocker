@@ -1,10 +1,10 @@
 #ifndef IPTABLESFIREWALL_H
 #define IPTABLESFIREWALL_H
 
-#include "enum.h"
+#include "../enum.h"
 #include "ifirewall.h"
-#include "logger.h"
-#include "utility.h"
+#include "../logger.h"
+#include "../utility.h"
 #include <mutex>
 #include <stdexcept>
 

@@ -1,9 +1,9 @@
 #ifndef MOCKFIREWALL_H
 #define MOCKFIREWALL_H
 
-#include "enum.h"
+#include "../enum.h"
 #include "ifirewall.h"
-#include "utility.h"
+#include "../utility.h"
 #include <fstream>
 #include <list>
 #include <mutex>

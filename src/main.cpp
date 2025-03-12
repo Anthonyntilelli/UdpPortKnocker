@@ -1,7 +1,7 @@
 #include "config.h"
-#include "ifirewall.h"
+#include "firewall/ifirewall.h"
 #include "logger.h"
-#include "mockFirewall.h"
+#include "udpServer.h"
 #include <atomic>
 #include <chrono>
 #include <csignal>
@@ -102,8 +102,8 @@ bool server(int argc, Config cfg) {
 }
 
 int main(int argc, char *argv[]) {
-  std::signal(SIGINT, signalHandler);  // Ctrl+C
-  std::signal(SIGTERM, signalHandler); // Kill command
+  // std::signal(SIGINT, signalHandler);  // Ctrl+C
+  // std::signal(SIGTERM, signalHandler); // Kill command
 
   Config cfg{}; // load before usage
   int success{false};
@@ -120,6 +120,14 @@ int main(int argc, char *argv[]) {
     Logger &log = Logger::getInstance(cfg.getLogFile());
     IFirewall &firewall =
         utility::getFwInstance(cfg.getFirewall(), log, cfg.getSudo());
+
+    UdpServer listener(36901);
+    std::cout << "Starting" << std::endl;
+    message m = listener.receive();
+
+    auto pass = utility::validateHash(m.message, m.port, cfg.getSecretKey(), 3);
+    
+    std::cout << ((pass) ? "True" : "False") << std::endl;
 
     success = false;
   }

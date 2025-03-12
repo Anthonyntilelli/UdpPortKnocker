@@ -1,8 +1,8 @@
 #ifndef FIREWALL_H
 #define FIREWALL_H
 
-#include "enum.h"
-#include "logger.h"
+#include "../enum.h"
+#include "../logger.h"
 #include <stdexcept>
 #include <string>
 

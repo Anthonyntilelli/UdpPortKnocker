@@ -18,6 +18,7 @@
                 "-fsanitize=address,undefined,leak",
                 "-D_GLIBCXX_ASSERTIONS",
                 "${workspaceFolder}/src/*.cpp",
+                "${workspaceFolder}/src/firewall/*.cpp",
                 "-lssl",
                 "-lcrypto",
                 "-o",

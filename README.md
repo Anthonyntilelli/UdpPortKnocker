@@ -5,12 +5,12 @@ The firewall for this application only modifies input related rules, it will not
 
 ## Manual BUILD (TESTING)
 
-`g++ -fdiagnostics-color=always -fno-omit-frame-pointer -Og -Wall -Wextra -Wpedantic -Wshadow -Wconversion -std=c++23 -fsanitize=address,undefined,leak -D_GLIBCXX_ASSERTIONS src/*.cpp -lssl -lcrypto -o bin/udpknocker.out`
+`g++ -fdiagnostics-color=always -fno-omit-frame-pointer -Og -Wall -Wextra -Wpedantic -Wshadow -Wconversion -std=c++23 -fsanitize=address,undefined,leak -D_GLIBCXX_ASSERTIONS src/*.cpp src/firewall/*.cpp  -lssl -lcrypto -o bin/udpknocker.out`
 
 `./bin/udpknocker.out`
 
  ## Manual Build (No ASan)
-`g++ -fdiagnostics-color=always -fno-omit-frame-pointer -Og -Wall -Wextra -Wpedantic -Wshadow -Wconversion -std=c++23  -D_GLIBCXX_ASSERTIONS src/*.cpp -lssl -lcrypto -o bin/udpknocker.out`
+`g++ -fdiagnostics-color=always -fno-omit-frame-pointer -Og -Wall -Wextra -Wpedantic -Wshadow -Wconversion -std=c++23  -D_GLIBCXX_ASSERTIONS src/*.cpp src/firewall/*.cpp -lssl -lcrypto -o bin/udpknocker.out`
 
 ## Leak testing
 

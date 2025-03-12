@@ -1,10 +1,10 @@
 #ifndef UTILITY_H
 #define UTILITY_H
 
-#include "ifirewall.h"
-#include "iptableFirewall.h"
-#include "mockFirewall.h"
-#include "ufwFirewall.h"
+#include "firewall/ifirewall.h"
+#include "firewall/iptableFirewall.h"
+#include "firewall/mockFirewall.h"
+#include "firewall/ufwFirewall.h"
 #include <algorithm>
 #include <arpa/inet.h>
 #include <cctype>
@@ -42,6 +42,7 @@ bool validateHash(const std::string &hash, const int port,
 void knockIp4(const std::string &destinationIp, const unsigned short port,
               const std::string &message);
 IFirewall &getFwInstance(const firewallType type, Logger &log, bool sudo);
+bool isValidCommand(const std::string &cmd);
 CommandResult execCommand(const std::string &command);
 } // namespace utility
 

@@ -155,9 +155,26 @@ IFirewall &getFwInstance(const firewallType type, Logger &log, bool sudo) {
   }
 }
 
-// Warning:: This function does not vet the command sent to it.
+
+// Basic black list of dangerous, shell characters. 
+bool isValidCommand(const std::string &cmd) {
+  return cmd.find(";") == std::string::npos &&
+         cmd.find("&") == std::string::npos &&
+         cmd.find("|") == std::string::npos &&
+         cmd.find(">") == std::string::npos &&
+         cmd.find("<") == std::string::npos &&
+         cmd.find("$") == std::string::npos &&
+         cmd.find("`") == std::string::npos;
+}
+
+
+// Warning:This function does not vet the command sent to it.
+// There is only a basic validation against potential script injection.
 // Please valdate input BEFORE calling this command.
 CommandResult execCommand(const std::string &command) {
+  if (!isValidCommand(command)) {
+    throw std::runtime_error("Invalid command: Potential injection detected.");
+  }
   std::vector<char> buffer;
   constexpr size_t CHUNK_SIZE = 4096;
   char tempBuffer[CHUNK_SIZE]; // Temporary buffer for reads
@@ -167,7 +184,7 @@ CommandResult execCommand(const std::string &command) {
   // Open a pipe to execute the command
   FILE *pipe = popen(full_command.c_str(), "r");
   if (!pipe) {
-    throw std::runtime_error("popen() failed!");
+    throw std::runtime_error("popen(" + full_command + ")" +" failed: " + std::string(strerror(errno)));
   }
 
   while ((bytesRead = fread(tempBuffer, 1, CHUNK_SIZE, pipe)) > 0) {
