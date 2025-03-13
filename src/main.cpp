@@ -7,12 +7,14 @@
 #include <csignal>
 #include <cstring>
 #include <thread>
+#include <vector>
 
 constexpr auto CONFIG_FILE{"config/udpknocker.conf"};
 
 std::atomic<bool> RUNNING{true};
 void signalHandler(int signum) {
-  std::cout << "\nReceived signal " << signum << "Shutting down" << std::endl;
+  if(!RUNNING) std::exit(EXIT_FAILURE);
+  std::cout << "\nReceived signal " << signum << " Shutting down" << std::endl;
   RUNNING = false;
 }
 
@@ -102,8 +104,8 @@ bool server(int argc, Config cfg) {
 }
 
 int main(int argc, char *argv[]) {
-  // std::signal(SIGINT, signalHandler);  // Ctrl+C
-  // std::signal(SIGTERM, signalHandler); // Kill command
+  std::signal(SIGINT, signalHandler);  // Ctrl+C
+  std::signal(SIGTERM, signalHandler); // Kill command
 
   Config cfg{}; // load before usage
   int success{false};
@@ -121,18 +123,17 @@ int main(int argc, char *argv[]) {
     IFirewall &firewall =
         utility::getFwInstance(cfg.getFirewall(), log, cfg.getSudo());
 
-    UdpServer listener(36901);
+    UdpServer listener{std::vector<uint16_t>{59969,28219,32038}}; // SSH ports
     std::cout << "Starting" << std::endl;
-    message m = listener.receive();
-
-    auto pass = utility::validateHash(m.message, m.port, cfg.getSecretKey(), 3);
-    
-    std::cout << ((pass) ? "True" : "False") << std::endl;
-
+    while(RUNNING){
+      auto messages = listener.receive();
+      for(auto m: messages){
+        auto pass = utility::validateHash(m.message, m.port, cfg.getSecretKey(), 3);
+        std::cout << m.ipaddress << "|" <<  m.port << "|" << ((pass) ? "True" : "False") << std::endl;
+      }
+    }
     success = false;
-  }
-
-  else {
+  } else {
     std::cerr << "Unknown parameter" << std::endl;
     success = false;
   }

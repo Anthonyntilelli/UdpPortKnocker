@@ -89,6 +89,7 @@
     },
     "cSpell.words": [
         "cppcheck",
+        "EPOLLIN",
         "fdiagnostics",
         "firewalld",
         "fsanitize",
