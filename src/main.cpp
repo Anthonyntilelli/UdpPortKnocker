@@ -19,7 +19,6 @@ void signalHandler(int signum) {
   RUNNING = false;
 }
 
-// always return false
 bool help() {
   std::cerr
       << "Select on of the valid paramater: `validate`, `knock`, or `server` \n"

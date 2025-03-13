@@ -69,6 +69,7 @@ std::vector<message> UdpServer::receive() {
                              std::string(strerror(errno)));
   }
 
+  messages.reserve(nfds);
   // Process each ready file descriptor
   for (int i = 0; i < nfds; i++) {
     if (events[i].events & EPOLLIN) {
