@@ -155,8 +155,7 @@ IFirewall &getFwInstance(const firewallType type, Logger &log, bool sudo) {
   }
 }
 
-
-// Basic black list of dangerous, shell characters. 
+// Basic black list of dangerous, shell characters.
 bool isValidCommand(const std::string &cmd) {
   return cmd.find(";") == std::string::npos &&
          cmd.find("&") == std::string::npos &&
@@ -166,7 +165,6 @@ bool isValidCommand(const std::string &cmd) {
          cmd.find("$") == std::string::npos &&
          cmd.find("`") == std::string::npos;
 }
-
 
 // Warning:This function does not vet the command sent to it.
 // There is only a basic validation against potential script injection.
@@ -184,7 +182,8 @@ CommandResult execCommand(const std::string &command) {
   // Open a pipe to execute the command
   FILE *pipe = popen(full_command.c_str(), "r");
   if (!pipe) {
-    throw std::runtime_error("popen(" + full_command + ")" +" failed: " + std::string(strerror(errno)));
+    throw std::runtime_error("popen(" + full_command + ")" +
+                             " failed: " + std::string(strerror(errno)));
   }
 
   while ((bytesRead = fread(tempBuffer, 1, CHUNK_SIZE, pipe)) > 0) {

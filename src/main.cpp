@@ -13,7 +13,8 @@ constexpr auto CONFIG_FILE{"config/udpknocker.conf"};
 
 std::atomic<bool> RUNNING{true};
 void signalHandler(int signum) {
-  if(!RUNNING) std::exit(EXIT_FAILURE);
+  if (!RUNNING)
+    std::exit(EXIT_FAILURE);
   std::cout << "\nReceived signal " << signum << " Shutting down" << std::endl;
   RUNNING = false;
 }
@@ -123,13 +124,15 @@ int main(int argc, char *argv[]) {
     IFirewall &firewall =
         utility::getFwInstance(cfg.getFirewall(), log, cfg.getSudo());
 
-    UdpServer listener{std::vector<uint16_t>{59969,28219,32038}}; // SSH ports
+    UdpServer listener{std::vector<uint16_t>{59969, 28219, 32038}}; // SSH ports
     std::cout << "Starting" << std::endl;
-    while(RUNNING){
+    while (RUNNING) {
       auto messages = listener.receive();
-      for(auto m: messages){
-        auto pass = utility::validateHash(m.message, m.port, cfg.getSecretKey(), 3);
-        std::cout << m.ipaddress << "|" <<  m.port << "|" << ((pass) ? "True" : "False") << std::endl;
+      for (auto m : messages) {
+        auto pass =
+            utility::validateHash(m.message, m.port, cfg.getSecretKey(), 3);
+        std::cout << m.ipaddress << "|" << m.port << "|"
+                  << ((pass) ? "True" : "False") << std::endl;
       }
     }
     success = false;

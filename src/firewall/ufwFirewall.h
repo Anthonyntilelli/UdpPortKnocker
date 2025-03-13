@@ -2,9 +2,9 @@
 #define UFWFIREWALL_H
 
 #include "../enum.h"
-#include "ifirewall.h"
 #include "../logger.h"
 #include "../utility.h"
+#include "ifirewall.h"
 #include <mutex>
 #include <stdexcept>
 

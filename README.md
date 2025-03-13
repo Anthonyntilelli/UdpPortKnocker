@@ -23,7 +23,7 @@ The firewall for this application only modifies input related rules, it will not
 `cppcheck --enable=all --check-config --inconclusive --suppress=missingIncludeSystem src/`
 
 ## Formatting
-`clang-format -i src/*`
+`find src -type f \( -name "*.cpp" -o -name "*.hpp" -o -name "*.c" -o -name "*.h" \) -exec clang-format -i {} \;`
 
 ## Dependencies
 - `sudo apt install libssl-dev`
