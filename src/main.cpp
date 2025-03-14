@@ -10,8 +10,54 @@
 #include <vector>
 
 constexpr auto CONFIG_FILE{"config/udpknocker.conf"};
-
 std::atomic<bool> RUNNING{true};
+
+void signalHandler(int signum);
+bool help();
+bool validate(int argc, char *argv[], Config cfg);
+bool knock(int argc, char *argv[], Config cfg);
+bool server(int argc, Config cfg);
+
+int main(int argc, char *argv[]) {
+  std::signal(SIGINT, signalHandler);  // Ctrl+C
+  std::signal(SIGTERM, signalHandler); // Kill command
+
+  Config cfg{}; // load before usage
+  int success{false};
+  if (argc < 2)
+    success = help();
+  else if (std::strcmp(argv[1], "validate") == 0)
+    success = validate(argc, argv, cfg);
+  else if (std::strcmp(argv[1], "knock") == 0)
+    success = knock(argc, argv, cfg);
+  else if (std::strcmp(argv[1], "server") == 0)
+    success = server(argc, cfg);
+  else if (std::strcmp(argv[1], "test") == 0) {
+    cfg.load(CONFIG_FILE);
+    Logger &log = Logger::getInstance(cfg.getLogFile());
+    IFirewall &firewall =
+        utility::getFwInstance(cfg.getFirewall(), log, cfg.getSudo());
+
+    UdpServer listener{std::vector<uint16_t>{59969, 28219, 32038}}; // SSH ports
+    std::cout << "Starting" << std::endl;
+    while (RUNNING) {
+      auto messages = listener.receive();
+      for (auto m : messages) {
+        auto pass =
+            utility::validateHash(m.message, m.port, cfg.getSecretKey(), 3);
+        std::cout << m.ipaddress << "|" << m.port << "|"
+                  << ((pass) ? "True" : "False") << std::endl;
+      }
+    }
+    success = false;
+  } else {
+    std::cerr << "Unknown parameter" << std::endl;
+    success = false;
+  }
+
+  return !success; // success is 0;
+}
+
 void signalHandler(int signum) {
   if (!RUNNING)
     std::exit(EXIT_FAILURE);
@@ -28,7 +74,6 @@ bool help() {
   return false;
 }
 
-// returns success
 bool validate(int argc, char *argv[], Config cfg) {
   if (argc != 3) {
     std::cerr << "Missing config file path or too many parameters provided"
@@ -44,7 +89,6 @@ bool validate(int argc, char *argv[], Config cfg) {
   return true;
 }
 
-// returns success
 bool knock(int argc, char *argv[], Config cfg) {
   if (argc != 4) {
     std::cerr << "Too many argument or too few" << std::endl;
@@ -91,54 +135,16 @@ bool server(int argc, Config cfg) {
     std::cerr << e.what() << std::endl;
     return false;
   }
-  Logger &log = Logger::getInstance(cfg.getLogFile());
   try {
-    IFirewall &firewall =
-        utility::getFwInstance(cfg.getFirewall(), log, cfg.getSudo());
-  } catch (const std::runtime_error &e) {
-    std::cerr << e.what() << std::endl;
-    return false;
-    // TODO:: SERVER
-  }
-  return false;
-}
-
-int main(int argc, char *argv[]) {
-  std::signal(SIGINT, signalHandler);  // Ctrl+C
-  std::signal(SIGTERM, signalHandler); // Kill command
-
-  Config cfg{}; // load before usage
-  int success{false};
-  if (argc < 2)
-    success = help();
-  else if (std::strcmp(argv[1], "validate") == 0)
-    success = validate(argc, argv, cfg);
-  else if (std::strcmp(argv[1], "knock") == 0)
-    success = knock(argc, argv, cfg);
-  else if (std::strcmp(argv[1], "server") == 0)
-    success = server(argc, cfg);
-  else if (std::strcmp(argv[1], "test") == 0) {
-    cfg.load(CONFIG_FILE);
     Logger &log = Logger::getInstance(cfg.getLogFile());
     IFirewall &firewall =
         utility::getFwInstance(cfg.getFirewall(), log, cfg.getSudo());
 
-    UdpServer listener{std::vector<uint16_t>{59969, 28219, 32038}}; // SSH ports
-    std::cout << "Starting" << std::endl;
-    while (RUNNING) {
-      auto messages = listener.receive();
-      for (auto m : messages) {
-        auto pass =
-            utility::validateHash(m.message, m.port, cfg.getSecretKey(), 3);
-        std::cout << m.ipaddress << "|" << m.port << "|"
-                  << ((pass) ? "True" : "False") << std::endl;
-      }
-    }
-    success = false;
-  } else {
-    std::cerr << "Unknown parameter" << std::endl;
-    success = false;
-  }
+    // TODO:: SERVER
 
-  return !success; // success is 0;
+  } catch (const std::runtime_error &e) {
+    std::cerr << e.what() << std::endl;
+    return false;
+  }
+  return false;
 }
