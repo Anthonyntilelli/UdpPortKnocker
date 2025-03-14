@@ -68,8 +68,8 @@ bool IptablesFirewall::allow_in(std::string &ip, Protocol protocol,
                    " Protocol: " + proto + "Port: " + sPort);
     return false;
   }
-  primaryLog.log("Succeeded in Adding for  Allow IP:" + ip +
-                 " Protocol: " + proto + "Port: " + sPort);
+  primaryLog.log("Succeeded in Adding for firewall rule Allow IP: " + ip +
+                 " Protocol: " + proto + " Port: " + sPort);
   return true;
 }
 

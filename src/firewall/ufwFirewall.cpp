@@ -79,8 +79,8 @@ bool UfwFirewall::allow_in(std::string &ip, Protocol protocol, size_t port) {
   auto result = utility::execCommand(command);
 
   if (result.exitCode == 0) {
-    primaryLog.log("Succeeded in Adding for  Allow IP:" + ip +
-                   " Protocol: " + proto + "Port: " + sPort);
+    primaryLog.log("Succeeded in Adding for Firewall rule Allow IP: " + ip +
+                   " Protocol: " + proto + " Port: " + sPort);
     return true;
   }
   primaryLog.log("Failed to add Rule for  Allow IP:" + ip +

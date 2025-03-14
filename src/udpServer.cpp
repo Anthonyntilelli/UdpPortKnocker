@@ -63,6 +63,9 @@ std::vector<message> UdpServer::receive() {
   std::vector<message> messages;
 
   int nfds = epoll_wait(epoll_fd, events.data(), events.size(), -1);
+  if (nfds == -1 && errno == EINTR) {
+    throw std::logic_error("epoll_wait interrupted by signal");
+  }
   if (nfds == -1) {
     closeAllSocketFd();
     throw std::runtime_error("epoll_wait failed: " +

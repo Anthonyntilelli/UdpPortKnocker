@@ -92,11 +92,16 @@ bool validateHash(const std::string &hash, const int port,
   const auto time = timeStamp();
   std::vector<std::string> allowedHashes{};
   for (int i = leeway; i >= 0; i--) {
-    auto leewayKey = stoi(time, "validateHash:: time convert fail",
-                          "validateHash:: time convert fail") -
-                     i;
+    long leewayKey{};
+    try {
+      leewayKey = std::stol(time);
+    } catch (std::invalid_argument const &_) {
+      throw std::invalid_argument{"validateHash:: time convert fail"};
+    } catch (std::out_of_range const &_) {
+      throw std::invalid_argument{"validateHash:: time convert fail"};
+    }
     allowedHashes.push_back(Sha256Hash(
-        (std::to_string(leewayKey) + std::to_string(port) + secret)));
+        (std::to_string(leewayKey - i) + std::to_string(port) + secret)));
   }
   return std::any_of(allowedHashes.begin(), allowedHashes.end(),
                      [hash](auto x) { return x == hash; });
