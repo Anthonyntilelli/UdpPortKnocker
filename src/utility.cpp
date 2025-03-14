@@ -79,7 +79,7 @@ std::string Sha256Hash(const std::string &inputStr) {
   return ss.str();
 }
 
-std::string makeAuthHash(const int port, const std::string &secret) {
+std::string makeAuthHash(const uint16_t port, const std::string &secret) {
   const auto time = timeStamp();
   const auto key = time + std::to_string(port) + secret;
   const auto authHash = Sha256Hash(key);
@@ -87,7 +87,7 @@ std::string makeAuthHash(const int port, const std::string &secret) {
 }
 
 // leeway is the number of old auth hashes
-bool validateHash(const std::string &hash, const int port,
+bool validateHash(const std::string &hash, const uint16_t port,
                   const std::string &secret, const unsigned int leeway) {
   const auto time = timeStamp();
   std::vector<std::string> allowedHashes{};
@@ -108,7 +108,7 @@ bool validateHash(const std::string &hash, const int port,
 }
 
 // Data is sent but there is no receiving of data
-void knockIp4(const std::string &destinationIp, const unsigned short port,
+void knockIp4(const std::string &destinationIp, const uint16_t port,
               const std::string &message) {
   int sockfd = socket(AF_INET, SOCK_DGRAM, 0);
   if (sockfd < 0)

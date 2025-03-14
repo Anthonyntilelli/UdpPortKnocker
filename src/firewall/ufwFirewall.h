@@ -16,14 +16,16 @@ private:
   bool sudo;
 
   UfwFirewall(Logger &log, bool useSudo);
-  bool validate(std::string &ipAddr, size_t port);
+  bool validate(const std::string &ipAddr, const uint16_t port);
 
 public:
   ~UfwFirewall();
-  bool allow_in(std::string &ip, Protocol protocol, size_t port);
-  bool removeRule(std::string &ip, Protocol protocol, size_t port);
-  bool block(std::string &ip);
-  bool unblock(std::string &ip);
+  bool allow_in(const std::string &ip, const Protocol protocol,
+                const uint16_t port) override;
+  bool removeRule(const std::string &ip, const Protocol protocol,
+                  const uint16_t port) override;
+  bool block(const std::string &ip) override;
+  bool unblock(const std::string &ip) override;
 
   static UfwFirewall &getInstance(Logger &log, bool sudo);
 

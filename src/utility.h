@@ -36,10 +36,10 @@ std::pair<std::string, std::string> parseSlash(const std::string &input);
 int stoi(const std::string &str, const std::string &invalid_argument_message,
          const std::string &out_of_range_message);
 std::string timeStamp();
-std::string makeAuthHash(const int port, const std::string &secret);
-bool validateHash(const std::string &hash, const int port,
+std::string makeAuthHash(const uint16_t port, const std::string &secret);
+bool validateHash(const std::string &hash, const uint16_t port,
                   const std::string &secret, const unsigned int leeway);
-void knockIp4(const std::string &destinationIp, const unsigned short port,
+void knockIp4(const std::string &destinationIp, const uint16_t port,
               const std::string &message);
 IFirewall &getFwInstance(const firewallType type, Logger &log, bool sudo);
 bool isValidCommand(const std::string &cmd);

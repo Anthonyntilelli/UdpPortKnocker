@@ -66,7 +66,7 @@ void Config::validate() {
   }
   auto allPorts = dumpPorts();
   std::unordered_set<int> dupCheck{};
-  for (int port : allPorts) {
+  for (auto port : allPorts) {
     if (dupCheck.find(port) != dupCheck.end())
       throw std::invalid_argument(
           "Duplicate port found in knockerSequence or UDP unlock port.");

@@ -42,7 +42,7 @@ UfwFirewall::UfwFirewall(Logger &log, bool useSudo)
 }
 
 // Works for ipv4 only
-bool UfwFirewall::validate(std::string &ipAddr, size_t port) {
+bool UfwFirewall::validate(const std::string &ipAddr, const uint16_t port) {
   // Validate IP
   unsigned char buf[sizeof(struct in6_addr)];
   auto check = inet_pton(AF_INET, ipAddr.c_str(), buf);
@@ -50,7 +50,7 @@ bool UfwFirewall::validate(std::string &ipAddr, size_t port) {
     return false;
 
   // validate port
-  return (port >= 1 && port <= 65535);
+  return (port >= 1);
 }
 
 UfwFirewall::~UfwFirewall() {
@@ -61,7 +61,8 @@ UfwFirewall::~UfwFirewall() {
   }
 }
 
-bool UfwFirewall::allow_in(std::string &ip, Protocol protocol, size_t port) {
+bool UfwFirewall::allow_in(const std::string &ip, const Protocol protocol,
+                           const uint16_t port) {
   std::lock_guard{mtx};
   if (!validate(ip, port)) {
     primaryLog.log(
@@ -88,7 +89,8 @@ bool UfwFirewall::allow_in(std::string &ip, Protocol protocol, size_t port) {
   return false;
 }
 
-bool UfwFirewall::removeRule(std::string &ip, Protocol protocol, size_t port) {
+bool UfwFirewall::removeRule(const std::string &ip, const Protocol protocol,
+                             const uint16_t port) {
   std::lock_guard{mtx};
   if (!validate(ip, port)) {
     primaryLog.log(
@@ -116,7 +118,7 @@ bool UfwFirewall::removeRule(std::string &ip, Protocol protocol, size_t port) {
   return false;
 }
 
-bool UfwFirewall::block(std::string &ip) {
+bool UfwFirewall::block(const std::string &ip) {
   std::lock_guard{mtx};
   if (!validate(ip, 99)) {
     primaryLog.log("Warning: Invalid port sent to UFW firewall ban rule");
@@ -137,7 +139,7 @@ bool UfwFirewall::block(std::string &ip) {
   return true;
 }
 
-bool UfwFirewall::unblock(std::string &ip) {
+bool UfwFirewall::unblock(const std::string &ip) {
   std::lock_guard{mtx};
   if (!validate(ip, 99)) {
     primaryLog.log("Warning: Invalid ip sent to UFW firewall unban rule");
