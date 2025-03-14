@@ -6,6 +6,12 @@
 #include <stdexcept>
 #include <string>
 
+struct FirewallRule {
+  std::string ip;
+  Protocol protocol;
+  uint16_t port;
+};
+
 // SINGLETONS instance
 class IFirewall {
 protected:

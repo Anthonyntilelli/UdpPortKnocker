@@ -17,11 +17,9 @@ bool help();
 bool validate(int argc, char *argv[], Config cfg);
 bool knock(int argc, char *argv[], Config cfg);
 bool server(int argc, Config cfg);
+void serverLoop(const Config &c, Logger &l, IFirewall &f, const std::string &application);
 
 int main(int argc, char *argv[]) {
-  std::signal(SIGINT, signalHandler);  // Ctrl+C
-  std::signal(SIGTERM, signalHandler); // Kill command
-
   Config cfg{}; // load before usage
   int success{false};
   if (argc < 2)
@@ -32,25 +30,7 @@ int main(int argc, char *argv[]) {
     success = knock(argc, argv, cfg);
   else if (std::strcmp(argv[1], "server") == 0)
     success = server(argc, cfg);
-  else if (std::strcmp(argv[1], "test") == 0) {
-    cfg.load(CONFIG_FILE);
-    Logger &log = Logger::getInstance(cfg.getLogFile());
-    IFirewall &firewall =
-        utility::getFwInstance(cfg.getFirewall(), log, cfg.getSudo());
-
-    UdpServer listener{std::vector<uint16_t>{59969, 28219, 32038}}; // SSH ports
-    std::cout << "Starting" << std::endl;
-    while (RUNNING) {
-      auto messages = listener.receive();
-      for (auto m : messages) {
-        auto pass =
-            utility::validateHash(m.message, m.port, cfg.getSecretKey(), 3);
-        std::cout << m.ipaddress << "|" << m.port << "|"
-                  << ((pass) ? "True" : "False") << std::endl;
-      }
-    }
-    success = false;
-  } else {
+  else {
     std::cerr << "Unknown parameter" << std::endl;
     success = false;
   }
@@ -139,12 +119,51 @@ bool server(int argc, Config cfg) {
     Logger &log = Logger::getInstance(cfg.getLogFile());
     IFirewall &firewall =
         utility::getFwInstance(cfg.getFirewall(), log, cfg.getSudo());
-
-    // TODO:: SERVER
+    
+    auto app = std::string{"ssh"}; //PLaceholder
+    serverLoop(cfg, log,firewall, app);
 
   } catch (const std::runtime_error &e) {
     std::cerr << e.what() << std::endl;
     return false;
   }
   return false;
+}
+
+void serverLoop(const Config &c, Logger &l, IFirewall &f, const std::string &application){
+  std::signal(SIGINT, signalHandler);  // Ctrl+C
+  std::signal(SIGTERM, signalHandler); // Kill command
+
+  std::vector<FirewallRule>  frVec{};
+  const std::vector<uint16_t> kPorts = c.getSequences().at(application).getKnockPorts();
+  const uint16_t unlockport = c.getSequences().at(application).getUnlockPort();
+  //open Knocker Ports
+  for(const auto port : kPorts){
+    FirewallRule fr = {std::string{"0.0.0.0"}, Protocol::udp, port};
+    if (f.allow_in(fr.ip, fr.protocol, fr.port)){
+      frVec.push_back(fr);
+    } else {
+      //TODO
+      std::cerr << "Firewall rule Failed: " << fr.ip << ":" << fr.port << std::endl;   
+    }
+  } 
+  auto server = UdpServer{kPorts};
+  l.log("Server is for " + application + " is now listening.");
+  while(RUNNING){
+    auto messages = server.receive();
+    for (auto m: messages){
+      if(utility::validateHash(m.message, m.port,c.getSecretKey(),3)) std::cout << "Valid Message" << std::endl;
+      else std::cout << "Invalid Message" << std::endl;
+    }
+  }
+  l.log("Shutting down firewall rules");
+  for(auto rule: frVec){
+    if(!f.removeRule(rule.ip, rule.protocol, rule.port)){
+      //TODO
+      std::cerr << "Firewall rule removal Failed: " << rule.ip << ":" << rule.port << std::endl;  
+    }
+  }
+
+
+
 }
