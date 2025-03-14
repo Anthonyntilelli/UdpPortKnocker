@@ -203,7 +203,7 @@ void serverLoop(const Config &c, Logger &l, IFirewall &f,
     }
   }
 
-  for (const auto [ip, active] : firewallTracker) {
+  for (const auto &[ip, active] : firewallTracker) {
     if (active) {
       if (!f.removeRule(ip, unlockProto, unlockport))
         l.log(std::string("Firewall rule removal Failed: ") + ip + ":" +
