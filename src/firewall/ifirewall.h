@@ -23,8 +23,6 @@ public:
                         uint16_t port) = 0;
   virtual bool removeRule(const std::string &ip, Protocol protocol,
                           uint16_t port) = 0;
-  virtual bool block(const std::string &ip) = 0;
-  virtual bool unblock(const std::string &ip) = 0;
 
   IFirewall(const IFirewall &cpy) = delete;
   IFirewall &operator=(const IFirewall &cpy) = delete;

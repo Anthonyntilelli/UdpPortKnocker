@@ -40,20 +40,6 @@ bool MockFirewall::removeRule(const std::string &ip, Protocol protocol,
   return true;
 }
 
-bool MockFirewall::block(const std::string &ip) {
-  std::lock_guard<std::mutex> lck(mtx);
-  primaryLog.log("Ban Rule added for IP:" + ip);
-  ruleCount++;
-  return true;
-}
-
-bool MockFirewall::unblock(const std::string &ip) {
-  std::lock_guard<std::mutex> lck(mtx);
-  primaryLog.log("Ban Rule removed for IP:" + ip);
-  ruleCount--;
-  return true;
-}
-
 MockFirewall &MockFirewall::getInstance(Logger &log) {
   static MockFirewall instance(log);
   return instance;

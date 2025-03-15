@@ -55,8 +55,6 @@ void Config::validate() {
   if (firewall == firewallType::invalid)
     throw std::invalid_argument{
         "`firewall` is missing from config or invalid type."};
-  if (ban_timer == -1 && ban)
-    throw std::invalid_argument{"`ban_timer` is missing from config."};
   if (sequences.empty())
     throw std::invalid_argument{"Missing _sequence or _unlock code."};
   for (auto [key, seq] : sequences) {
@@ -83,8 +81,8 @@ void Config::validate() {
 }
 
 Config::Config()
-    : secret_key{}, log_file{""}, firewall{firewallType::invalid}, ban{false},
-      ban_timer{-1}, sequences{}, valid{false}, sudo{false} {}
+    : secret_key{}, log_file{""}, firewall{firewallType::invalid}, sequences{},
+      valid{false}, sudo{false} {}
 
 void Config::load(const std::string &filePath) {
 
@@ -120,20 +118,11 @@ void Config::load(const std::string &filePath) {
       log.close();
     } else if (key == "firewall")
       firewall = setFirewallType(value);
-    else if (key == "ban") {
-      if (value != "true" && value != "false")
-        throw std::invalid_argument{"ban value is incorrect!"};
-      ban = (value == "true");
-    } else if (key == "sudo") {
+    else if (key == "sudo") {
       if (value != "true" && value != "false")
         throw std::invalid_argument{"sudo value is incorrect! (value is " +
                                     value + ")"};
       sudo = (value == "true");
-    } else if (key == "ban_timer") {
-      ban_timer = utility::stoi(value, "ban_timer is not a valid number",
-                                "ban_timer number is too big");
-      if (ban_timer < 0)
-        throw std::invalid_argument{"ban_timer must be a positive number"};
     } else if (key.find("_sequence") != std::string::npos) {
       auto service = key.substr(0, key.find("_sequence"));
       populateSequencesKnockPorts(service, value);
@@ -151,10 +140,6 @@ std::string Config::getSecretKey() const { return secret_key; }
 std::string Config::getLogFile() const { return log_file; }
 
 firewallType Config::getFirewall() const { return firewall; }
-
-bool Config::banEnabled() const { return ban; }
-
-int Config::getBanTimer() const { return ban_timer; }
 
 bool Config::getSudo() const { return sudo; }
 

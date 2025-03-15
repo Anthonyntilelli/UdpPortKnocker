@@ -24,8 +24,6 @@ public:
                 const uint16_t port) override;
   bool removeRule(const std::string &ip, const Protocol protocol,
                   const uint16_t port) override;
-  bool block(const std::string &ip) override;
-  bool unblock(const std::string &ip) override;
 
   static UfwFirewall &getInstance(Logger &log, bool sudo);
 

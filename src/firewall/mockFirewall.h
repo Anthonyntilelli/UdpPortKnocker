@@ -25,8 +25,6 @@ public:
                 uint16_t port) override;
   bool removeRule(const std::string &ip, Protocol protocol,
                   uint16_t port) override;
-  bool block(const std::string &ip) override;
-  bool unblock(const std::string &ip) override;
 
   static MockFirewall &getInstance(Logger &Log);
 

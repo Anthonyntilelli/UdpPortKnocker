@@ -105,51 +105,6 @@ bool IptablesFirewall::removeRule(const std::string &ip,
   return true;
 }
 
-// sudo iptables -A INPUT -s 192.168.1.100 -j DROP
-bool IptablesFirewall::block(const std::string &ip) {
-  std::lock_guard{mtx};
-  if (!validate(ip, 99)) {
-    primaryLog.log("Warning: Invalid IP sent to Iptables firewall ban rule");
-    return false;
-  }
-
-  auto command = "iptables -A INPUT -s " + ip + " -m comment --comment " +
-                 "\"" + "udpPortKnocker," + ip + "\"" + " -j DROP";
-  if (sudo)
-    command = "sudo " + command;
-
-  auto result = utility::execCommand(command);
-  if (result.exitCode != 0) {
-    primaryLog.log("Failed to add Rule for Banning IP:" + ip);
-    return false;
-  }
-  primaryLog.log("Succeeded in Banning IP:" + ip);
-  return true;
-}
-
-bool IptablesFirewall::unblock(const std::string &ip) {
-  std::lock_guard{mtx};
-  if (!validate(ip, 99)) {
-    primaryLog.log("Warning: Invalid ip sent to iptable firewall unban rule");
-    return false;
-  }
-
-  auto command = "iptables -D INPUT -s " + ip + " -m comment --comment " +
-                 "\"" + "udpPortKnocker," + ip + "\"" + " -j DROP";
-
-  if (sudo)
-    command = "sudo " + command;
-
-  auto result = utility::execCommand(command);
-  if (result.exitCode != 0) {
-    primaryLog.log("Failed to remove Rule for  UnBanning IP:" + ip);
-    return false;
-  }
-
-  primaryLog.log("Succeeded in UnBanning IP:" + ip);
-  return true;
-}
-
 IptablesFirewall &IptablesFirewall::getInstance(Logger &log, bool sudo) {
   static IptablesFirewall instance(log, sudo);
   return instance;
