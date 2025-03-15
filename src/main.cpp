@@ -51,7 +51,11 @@ void signalHandler(int signum) {
 
   // unblock the epoll waits
   uint64_t signal_value = 99; // Signal all workers
-  write(warnFd, &signal_value, sizeof(signal_value));
+
+  auto written = write(warnFd, &signal_value, sizeof(signal_value));
+  if (written == -1) {
+    std::cerr << "Stop write failed" + std::string(strerror(errno));
+  }
 }
 
 bool help() {
