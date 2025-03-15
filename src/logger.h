@@ -7,6 +7,7 @@
 #include <mutex>
 #include <stdexcept>
 #include <string>
+#include <unistd.h>
 
 // SINGLETONS instance
 class Logger {
@@ -17,6 +18,7 @@ private:
   std::mutex mtx;
   bool reopenLogFile();
   const std::string filePath;
+  pid_t pid;
 
 public:
   static Logger &getInstance(const std::string &logFilePath);

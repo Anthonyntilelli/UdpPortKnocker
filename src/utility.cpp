@@ -79,7 +79,7 @@ std::string Sha256Hash(const std::string &inputStr) {
   return ss.str();
 }
 
-std::string makeAuthHash(const int port, const std::string &secret) {
+std::string makeAuthHash(const uint16_t port, const std::string &secret) {
   const auto time = timeStamp();
   const auto key = time + std::to_string(port) + secret;
   const auto authHash = Sha256Hash(key);
@@ -87,23 +87,28 @@ std::string makeAuthHash(const int port, const std::string &secret) {
 }
 
 // leeway is the number of old auth hashes
-bool validateHash(const std::string &hash, const int port,
+bool validateHash(const std::string &hash, const uint16_t port,
                   const std::string &secret, const unsigned int leeway) {
   const auto time = timeStamp();
   std::vector<std::string> allowedHashes{};
   for (int i = leeway; i >= 0; i--) {
-    auto leewayKey = stoi(time, "validateHash:: time convert fail",
-                          "validateHash:: time convert fail") -
-                     i;
+    long leewayKey{};
+    try {
+      leewayKey = std::stol(time);
+    } catch (std::invalid_argument const &_) {
+      throw std::invalid_argument{"validateHash:: time convert fail"};
+    } catch (std::out_of_range const &_) {
+      throw std::invalid_argument{"validateHash:: time convert fail"};
+    }
     allowedHashes.push_back(Sha256Hash(
-        (std::to_string(leewayKey) + std::to_string(port) + secret)));
+        (std::to_string(leewayKey - i) + std::to_string(port) + secret)));
   }
   return std::any_of(allowedHashes.begin(), allowedHashes.end(),
                      [hash](auto x) { return x == hash; });
 }
 
 // Data is sent but there is no receiving of data
-void knockIp4(const std::string &destinationIp, const unsigned short port,
+void knockIp4(const std::string &destinationIp, const uint16_t port,
               const std::string &message) {
   int sockfd = socket(AF_INET, SOCK_DGRAM, 0);
   if (sockfd < 0)
@@ -155,9 +160,24 @@ IFirewall &getFwInstance(const firewallType type, Logger &log, bool sudo) {
   }
 }
 
-// Warning:: This function does not vet the command sent to it.
+// Basic black list of dangerous, shell characters.
+bool isValidCommand(const std::string &cmd) {
+  return cmd.find(";") == std::string::npos &&
+         cmd.find("&") == std::string::npos &&
+         cmd.find("|") == std::string::npos &&
+         cmd.find(">") == std::string::npos &&
+         cmd.find("<") == std::string::npos &&
+         cmd.find("$") == std::string::npos &&
+         cmd.find("`") == std::string::npos;
+}
+
+// Warning:This function does not vet the command sent to it.
+// There is only a basic validation against potential script injection.
 // Please valdate input BEFORE calling this command.
 CommandResult execCommand(const std::string &command) {
+  if (!isValidCommand(command)) {
+    throw std::runtime_error("Invalid command: Potential injection detected.");
+  }
   std::vector<char> buffer;
   constexpr size_t CHUNK_SIZE = 4096;
   char tempBuffer[CHUNK_SIZE]; // Temporary buffer for reads
@@ -167,7 +187,8 @@ CommandResult execCommand(const std::string &command) {
   // Open a pipe to execute the command
   FILE *pipe = popen(full_command.c_str(), "r");
   if (!pipe) {
-    throw std::runtime_error("popen() failed!");
+    throw std::runtime_error("popen(" + full_command + ")" +
+                             " failed: " + std::string(strerror(errno)));
   }
 
   while ((bytesRead = fread(tempBuffer, 1, CHUNK_SIZE, pipe)) > 0) {

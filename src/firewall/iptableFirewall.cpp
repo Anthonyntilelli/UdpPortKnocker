@@ -24,7 +24,7 @@ IptablesFirewall::IptablesFirewall(Logger &log, bool useSudo)
 }
 
 // Works for ipv4 only
-bool IptablesFirewall::validate(std::string &ipAddr, size_t port) {
+bool IptablesFirewall::validate(const std::string &ipAddr, uint16_t port) {
   // Validate IP
   unsigned char buf[sizeof(struct in6_addr)];
   auto check = inet_pton(AF_INET, ipAddr.c_str(), buf);
@@ -32,7 +32,7 @@ bool IptablesFirewall::validate(std::string &ipAddr, size_t port) {
     return false;
 
   // validate port
-  return (port >= 1 && port <= 65535);
+  return (port >= 1);
 }
 
 IptablesFirewall::~IptablesFirewall() {
@@ -43,8 +43,8 @@ IptablesFirewall::~IptablesFirewall() {
   }
 }
 
-bool IptablesFirewall::allow_in(std::string &ip, Protocol protocol,
-                                size_t port) {
+bool IptablesFirewall::allow_in(const std::string &ip, const Protocol protocol,
+                                const uint16_t port) {
   std::lock_guard{mtx};
   if (!validate(ip, port)) {
     primaryLog.log(
@@ -68,13 +68,14 @@ bool IptablesFirewall::allow_in(std::string &ip, Protocol protocol,
                    " Protocol: " + proto + "Port: " + sPort);
     return false;
   }
-  primaryLog.log("Succeeded in Adding for  Allow IP:" + ip +
-                 " Protocol: " + proto + "Port: " + sPort);
+  primaryLog.log("Succeeded in Adding for firewall rule Allow IP: " + ip +
+                 " Protocol: " + proto + " Port: " + sPort);
   return true;
 }
 
-bool IptablesFirewall::removeRule(std::string &ip, Protocol protocol,
-                                  size_t port) {
+bool IptablesFirewall::removeRule(const std::string &ip,
+                                  const Protocol protocol,
+                                  const uint16_t port) {
   std::lock_guard{mtx};
   if (!validate(ip, port)) {
     primaryLog.log(
@@ -101,51 +102,6 @@ bool IptablesFirewall::removeRule(std::string &ip, Protocol protocol,
 
   primaryLog.log("Succeeded in removed for Allow rule IP:" + ip +
                  " Protocol: " + proto + "Port: " + std::to_string(port));
-  return true;
-}
-
-// sudo iptables -A INPUT -s 192.168.1.100 -j DROP
-bool IptablesFirewall::block(std::string &ip) {
-  std::lock_guard{mtx};
-  if (!validate(ip, 99)) {
-    primaryLog.log("Warning: Invalid IP sent to Iptables firewall ban rule");
-    return false;
-  }
-
-  auto command = "iptables -A INPUT -s " + ip + " -m comment --comment " +
-                 "\"" + "udpPortKnocker," + ip + "\"" + " -j DROP";
-  if (sudo)
-    command = "sudo " + command;
-
-  auto result = utility::execCommand(command);
-  if (result.exitCode != 0) {
-    primaryLog.log("Failed to add Rule for Banning IP:" + ip);
-    return false;
-  }
-  primaryLog.log("Succeeded in Banning IP:" + ip);
-  return true;
-}
-
-bool IptablesFirewall::unblock(std::string &ip) {
-  std::lock_guard{mtx};
-  if (!validate(ip, 99)) {
-    primaryLog.log("Warning: Invalid ip sent to iptable firewall unban rule");
-    return false;
-  }
-
-  auto command = "iptables -D INPUT -s " + ip + " -m comment --comment " +
-                 "\"" + "udpPortKnocker," + ip + "\"" + " -j DROP";
-
-  if (sudo)
-    command = "sudo " + command;
-
-  auto result = utility::execCommand(command);
-  if (result.exitCode != 0) {
-    primaryLog.log("Failed to remove Rule for  UnBanning IP:" + ip);
-    return false;
-  }
-
-  primaryLog.log("Succeeded in UnBanning IP:" + ip);
   return true;
 }
 

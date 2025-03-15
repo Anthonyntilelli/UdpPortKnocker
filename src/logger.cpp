@@ -1,7 +1,8 @@
 #include "logger.h"
 
 Logger::Logger(const std::string &logFilePath)
-    : file{logFilePath, std::ios::app}, filePath{logFilePath} {
+    : file{logFilePath, std::ios::app}, filePath{logFilePath}, pid(0) {
+  pid = getpid();
   if (!file.is_open())
     throw std::runtime_error("Cannot open the log file at: " + logFilePath +
                              ".");
@@ -41,7 +42,8 @@ void Logger::log(const std::string &message) {
   const std::time_t now = std::time(nullptr);
   char buf[20];
   std::strftime(buf, sizeof(buf), "%Y-%m-%d %H:%M:%S", std::localtime(&now));
-  const std::string fullMessage = "[" + std::string{buf} + "] " + message;
+  const std::string fullMessage =
+      "[" + std::string{buf} + "] (" + std::to_string(pid) + ") " + message;
 
   if (reopenLogFile()) {
     file << fullMessage << std::endl;

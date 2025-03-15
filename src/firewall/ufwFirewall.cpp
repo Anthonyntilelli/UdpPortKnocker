@@ -42,7 +42,7 @@ UfwFirewall::UfwFirewall(Logger &log, bool useSudo)
 }
 
 // Works for ipv4 only
-bool UfwFirewall::validate(std::string &ipAddr, size_t port) {
+bool UfwFirewall::validate(const std::string &ipAddr, const uint16_t port) {
   // Validate IP
   unsigned char buf[sizeof(struct in6_addr)];
   auto check = inet_pton(AF_INET, ipAddr.c_str(), buf);
@@ -50,7 +50,7 @@ bool UfwFirewall::validate(std::string &ipAddr, size_t port) {
     return false;
 
   // validate port
-  return (port >= 1 && port <= 65535);
+  return (port >= 1);
 }
 
 UfwFirewall::~UfwFirewall() {
@@ -61,7 +61,8 @@ UfwFirewall::~UfwFirewall() {
   }
 }
 
-bool UfwFirewall::allow_in(std::string &ip, Protocol protocol, size_t port) {
+bool UfwFirewall::allow_in(const std::string &ip, const Protocol protocol,
+                           const uint16_t port) {
   std::lock_guard{mtx};
   if (!validate(ip, port)) {
     primaryLog.log(
@@ -79,8 +80,8 @@ bool UfwFirewall::allow_in(std::string &ip, Protocol protocol, size_t port) {
   auto result = utility::execCommand(command);
 
   if (result.exitCode == 0) {
-    primaryLog.log("Succeeded in Adding for  Allow IP:" + ip +
-                   " Protocol: " + proto + "Port: " + sPort);
+    primaryLog.log("Succeeded in Adding for Firewall rule Allow IP: " + ip +
+                   " Protocol: " + proto + " Port: " + sPort);
     return true;
   }
   primaryLog.log("Failed to add Rule for  Allow IP:" + ip +
@@ -88,7 +89,8 @@ bool UfwFirewall::allow_in(std::string &ip, Protocol protocol, size_t port) {
   return false;
 }
 
-bool UfwFirewall::removeRule(std::string &ip, Protocol protocol, size_t port) {
+bool UfwFirewall::removeRule(const std::string &ip, const Protocol protocol,
+                             const uint16_t port) {
   std::lock_guard{mtx};
   if (!validate(ip, port)) {
     primaryLog.log(
@@ -114,49 +116,6 @@ bool UfwFirewall::removeRule(std::string &ip, Protocol protocol, size_t port) {
   primaryLog.log("Failed to remove Rule for  Allow IP:" + ip +
                  " Protocol: " + proto + "Port: " + std::to_string(port));
   return false;
-}
-
-bool UfwFirewall::block(std::string &ip) {
-  std::lock_guard{mtx};
-  if (!validate(ip, 99)) {
-    primaryLog.log("Warning: Invalid port sent to UFW firewall ban rule");
-    return false;
-  }
-
-  auto command =
-      "ufw deny from " + ip + " comment " + "'udpPortKnocker," + ip + "'";
-  if (sudo)
-    command = "sudo " + command;
-
-  auto result = utility::execCommand(command);
-  if (result.exitCode != 0) {
-    primaryLog.log("Failed to add Rule for  Banning IP:" + ip);
-    return false;
-  }
-  primaryLog.log("Succeeded in Banning IP:" + ip);
-  return true;
-}
-
-bool UfwFirewall::unblock(std::string &ip) {
-  std::lock_guard{mtx};
-  if (!validate(ip, 99)) {
-    primaryLog.log("Warning: Invalid ip sent to UFW firewall unban rule");
-    return false;
-  }
-
-  auto command = "ufw delete deny from " + ip + " comment " +
-                 "'udpPortKnocker," + ip + "'";
-  if (sudo)
-    command = "sudo " + command;
-
-  auto result = utility::execCommand(command);
-  if (result.exitCode != 0) {
-    primaryLog.log("Failed to remove Rule for  UnBanning IP:" + ip);
-    return false;
-  }
-
-  primaryLog.log("Succeeded in UnBanning IP:" + ip);
-  return true;
 }
 
 UfwFirewall &UfwFirewall::getInstance(Logger &log, bool sudo) {

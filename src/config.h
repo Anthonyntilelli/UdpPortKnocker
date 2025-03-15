@@ -19,8 +19,6 @@ private:
   std::string secret_key;
   std::string log_file;
   firewallType firewall;
-  bool ban;
-  int ban_timer;
   std::unordered_map<std::string, Sequence> sequences;
   bool valid;
   bool sudo;
@@ -42,8 +40,6 @@ public:
   std::string getSecretKey() const;
   std::string getLogFile() const;
   firewallType getFirewall() const;
-  bool banEnabled() const;
-  int getBanTimer() const;
   bool getSudo() const;
   std::unordered_map<std::string, Sequence> getSequences() const;
   bool isValid() const;

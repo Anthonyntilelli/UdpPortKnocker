@@ -1,10 +1,10 @@
 #ifndef IPTABLESFIREWALL_H
 #define IPTABLESFIREWALL_H
 
-#include "enum.h"
+#include "../enum.h"
+#include "../logger.h"
+#include "../utility.h"
 #include "ifirewall.h"
-#include "logger.h"
-#include "utility.h"
 #include <mutex>
 #include <stdexcept>
 
@@ -16,14 +16,14 @@ private:
   bool sudo;
 
   IptablesFirewall(Logger &log, bool useSudo);
-  bool validate(std::string &ipAddr, size_t port);
+  bool validate(const std::string &ipAddr, uint16_t port);
 
 public:
   ~IptablesFirewall();
-  bool allow_in(std::string &ip, Protocol protocol, size_t port);
-  bool removeRule(std::string &ip, Protocol protocol, size_t port);
-  bool block(std::string &ip);
-  bool unblock(std::string &ip);
+  bool allow_in(const std::string &ip, const Protocol protocol,
+                const uint16_t port) override;
+  bool removeRule(const std::string &ip, const Protocol protocol,
+                  const uint16_t port) override;
 
   static IptablesFirewall &getInstance(Logger &log, bool sudo);
 

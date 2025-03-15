@@ -7,8 +7,8 @@
 class Sequence {
 private:
   bool tcp; // false is udp
-  int unlockPort;
-  std::vector<int> knockPorts;
+  uint16_t unlockPort;
+  std::vector<uint16_t> knockPorts;
 
 public:
   // Check if the port is in range of actual ports and pushes back if valid
@@ -21,9 +21,9 @@ public:
   void setUnlockPort(const int port, const bool isTcp);
   // returns if sequence is valid
   bool isValid() const;
-  int getUnlockPort() const;
+  uint16_t getUnlockPort() const;
   bool isTcp() const;
-  std::vector<int> getKnockPorts() const;
+  std::vector<uint16_t> getKnockPorts() const;
   ~Sequence() = default;
 };
 

@@ -1,9 +1,9 @@
 #ifndef MOCKFIREWALL_H
 #define MOCKFIREWALL_H
 
-#include "enum.h"
+#include "../enum.h"
+#include "../utility.h"
 #include "ifirewall.h"
-#include "utility.h"
 #include <fstream>
 #include <list>
 #include <mutex>
@@ -15,15 +15,16 @@ class MockFirewall : public IFirewall {
 private:
   Logger &primaryLog;
   std::mutex mtx;
+  unsigned int ruleCount;
 
   MockFirewall(Logger &log);
 
 public:
   ~MockFirewall();
-  bool allow_in(std::string &ip, Protocol protocol, size_t port);
-  bool removeRule(std::string &ip, Protocol protocol, size_t port);
-  bool block(std::string &ip);
-  bool unblock(std::string &ip);
+  bool allow_in(const std::string &ip, Protocol protocol,
+                uint16_t port) override;
+  bool removeRule(const std::string &ip, Protocol protocol,
+                  uint16_t port) override;
 
   static MockFirewall &getInstance(Logger &Log);
 
