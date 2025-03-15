@@ -34,5 +34,5 @@
 # Log
 *.log
 
-#vagrant 
+# Vagrant 
 .vagrant
