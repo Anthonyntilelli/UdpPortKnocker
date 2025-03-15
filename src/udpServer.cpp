@@ -31,8 +31,8 @@ void UdpServer::closeAllSocketFd() {
   }
 }
 
-UdpServer::UdpServer(std::vector<uint16_t> ports)
-    : sockfds{}, epoll_fd{}, socketsOpen{true} {
+UdpServer::UdpServer(std::vector<uint16_t> ports, int wakefd)
+    : sockfds{}, epoll_fd{}, socketsOpen{true}, centralfd(wakefd) {
 
   epoll_fd = epoll_create(10);
   if (epoll_fd == -1)
@@ -53,6 +53,17 @@ UdpServer::UdpServer(std::vector<uint16_t> ports)
                                std::string(strerror(errno)));
     }
   }
+
+  // Adding warning fd
+  struct epoll_event ev;
+  ev.events = EPOLLIN; // Interested in readability
+  ev.data.fd = centralfd;
+
+  if (epoll_ctl(epoll_fd, EPOLL_CTL_ADD, centralfd, &ev) == -1) {
+    closeAllSocketFd();
+    throw std::runtime_error("epoll_ctl centralfd failed: " +
+                             std::string(strerror(errno)));
+  }
 }
 
 UdpServer::~UdpServer() { closeAllSocketFd(); }
@@ -60,7 +71,7 @@ UdpServer::~UdpServer() { closeAllSocketFd(); }
 std::vector<message> UdpServer::receive() {
   std::array<epoll_event, MAXEVENTS> events{};
   std::array<char, BUFFERSIZE> buffer{};
-  std::vector<message> messages;
+  std::vector<message> messages{};
 
   int nfds = epoll_wait(epoll_fd, events.data(), events.size(), -1);
   if (nfds == -1 && errno == EINTR) {
@@ -80,6 +91,9 @@ std::vector<message> UdpServer::receive() {
       struct sockaddr_in client_addr {};
       socklen_t addrlen = sizeof(client_addr);
       std::fill(buffer.begin(), buffer.end(), 0);
+      // Dont need to read the wake up event
+      if (fd == centralfd)
+        continue;
       ssize_t count = recvfrom(fd, buffer.data(), buffer.size() - 1, 0,
                                (struct sockaddr *)&client_addr, &addrlen);
       if (count == -1) {

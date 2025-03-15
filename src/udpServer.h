@@ -31,12 +31,13 @@ private:
   std::map<int, uint16_t> sockfds;
   int epoll_fd;
   bool socketsOpen;
+  int centralfd;
 
   int makeUdpPort(uint16_t port) const;
   void closeAllSocketFd();
 
 public:
-  UdpServer(std::vector<uint16_t> ports);
+  UdpServer(std::vector<uint16_t> ports, int wakefd);
   ~UdpServer();
   std::vector<message> receive();
 };

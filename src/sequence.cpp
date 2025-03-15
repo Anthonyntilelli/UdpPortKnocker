@@ -10,7 +10,12 @@ void Sequence::addPortToSequence(const int port) {
     knockPorts.push_back(static_cast<uint16_t>(port));
   else
     throw std::invalid_argument(
-        "Sequence port is not a valid, it must be in between 1024 and 65535");
+        "Sequence port " + std::to_string(port) +
+        " is not a valid, it must be in between 1024 and 65535");
+
+  if (knockPorts.size() <= 10)
+    throw std::invalid_argument{
+        "One of the sequences has too many ports, it must be 9 or below"};
 }
 
 // Port is int because it needs to handle potentially ivalid numbers

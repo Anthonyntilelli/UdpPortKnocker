@@ -6,10 +6,12 @@
 #include <chrono>
 #include <csignal>
 #include <cstring>
+#include <sys/eventfd.h>
 #include <thread>
 #include <unordered_map>
 #include <vector>
 
+int warnFd{-1}; // Global eventfd file descriptor
 constexpr auto CONFIG_FILE{"config/udpknocker.conf"};
 constexpr unsigned short ALLOWMINUTES{3};
 std::atomic<bool> RUNNING{true};
@@ -46,6 +48,10 @@ void signalHandler(int signum) {
     std::exit(EXIT_FAILURE);
   std::cout << "\nReceived signal " << signum << " Shutting down" << std::endl;
   RUNNING = false;
+
+  // unblock the epoll waits
+  uint64_t signal_value = 99; // Signal all workers
+  write(warnFd, &signal_value, sizeof(signal_value));
 }
 
 bool help() {
@@ -123,6 +129,7 @@ bool server(int argc, Config &cfg) {
     IFirewall &firewall =
         utility::getFwInstance(cfg.getFirewall(), log, cfg.getSudo());
 
+    warnFd = eventfd(0, EFD_NONBLOCK);
     std::vector<std::jthread> threads;
     for (const auto &[app, seq] : cfg.getSequences()) {
       threads.emplace_back(serverLoop, std::ref(cfg), std::ref(log),
@@ -159,7 +166,7 @@ void serverLoop(const Config &c, Logger &l, IFirewall &f,
       l.log("Firewall rule Failed: " + fr.ip + ":" + std::to_string(fr.port));
   }
 
-  auto server = UdpServer{kPorts};
+  auto server = UdpServer{kPorts, warnFd};
   l.log("Server for " + application + " is now listening.");
   while (RUNNING) {
     try {
