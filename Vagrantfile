@@ -72,7 +72,7 @@ Vagrant.configure("2") do |config|
   # documentation for more information about their specific syntax and use.
   config.vm.provision "shell", inline: <<-SHELL
     apt-get update
-    apt-get install -y cmake git build-essential
+    apt-get install -y cmake git build-essential valgrind cppcheck clang-format gdb doxygen
     apt-get install -y libssl-dev
   SHELL
 end
