@@ -49,7 +49,7 @@ Application is not compatible with windows it relies on linux specific apis
 
 ### Dependencies
 - g++ 11.4.0
-- `sudo apt install libssl-dev` (Pop!_OS 22.04 LTS)
+- `sudo apt install libssl-dev` (Debian)
 
 ### Compile
 
